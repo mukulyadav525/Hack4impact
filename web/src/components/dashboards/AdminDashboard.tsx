@@ -228,8 +228,8 @@ export default function AdminDashboard({ user }: { user: any }) {
 
             <InfoCard title="Department Performance">
               <div className="space-y-4">
-                {(stats?.department_performance || []).map((dept: any) => (
-                  <div key={dept.name} className="cursor-pointer group" onClick={() => { setTab("users"); setSearch(dept.name); }}>
+                {(stats?.department_performance || []).map((dept: any, idx: number) => (
+                  <div key={`${dept.name}-${idx}`} className="cursor-pointer group" onClick={() => { setTab("users"); setSearch(dept.name); }}>
                     <div className="flex justify-between mb-1">
                       <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">{dept.name}</span>
                       <span className="text-sm font-bold text-white">{dept.score}%</span>
@@ -417,8 +417,8 @@ export default function AdminDashboard({ user }: { user: any }) {
       {tab === "departments" && (
         <InfoCard title="Department Overview">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {(stats?.department_performance || []).map((dept: any) => (
-              <div key={dept.code} className={`p-6 rounded-2xl bg-${dept.color}-500/5 border border-${dept.color}-500/20 space-y-3 cursor-pointer hover:bg-${dept.color}-500/10 transition-colors`} onClick={() => { setTab("users"); setSearch(dept.name); }}>
+            {(stats?.department_performance || []).map((dept: any, idx: number) => (
+              <div key={`${dept.code || dept.name}-${idx}`} className={`p-6 rounded-2xl bg-${dept.color}-500/5 border border-${dept.color}-500/20 space-y-3 cursor-pointer hover:bg-${dept.color}-500/10 transition-colors`} onClick={() => { setTab("users"); setSearch(dept.name); }}>
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="font-bold text-white">{dept.name}</p>

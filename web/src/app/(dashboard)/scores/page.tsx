@@ -181,10 +181,10 @@ export default function ScoresPage() {
 
             {/* Table */}
             <div className="space-y-2">
-              {history.map((day) => {
+              {history.map((day, idx) => {
                 const isExpanded = expanded === day.date;
                 return (
-                  <div key={day.date} className="rounded-2xl border border-white/5 bg-black/10 overflow-hidden">
+                  <div key={`${day.date}-${idx}`} className="rounded-2xl border border-white/5 bg-black/10 overflow-hidden">
                     <button
                       onClick={() => setExpanded(isExpanded ? null : day.date)}
                       className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-all"
@@ -226,8 +226,8 @@ export default function ScoresPage() {
         <div className="bg-[#1E3A5F]/40 backdrop-blur-xl rounded-3xl border border-white/5 p-8">
           <h2 className="text-lg font-bold text-white mb-6">Monthly Summaries</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {monthly.map((m: any) => (
-              <div key={`${m.year}-${m.month}`} className="bg-black/20 rounded-2xl p-5 border border-white/5">
+            {monthly.map((m: any, idx: number) => (
+              <div key={`${m.year}-${m.month}-${idx}`} className="bg-black/20 rounded-2xl p-5 border border-white/5">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-bold text-white">
                     {new Date(m.year, m.month - 1).toLocaleDateString("en-IN", { month: "long", year: "numeric" })}

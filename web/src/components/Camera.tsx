@@ -85,7 +85,7 @@ export function Camera({ onCapture, className, showOverlay = true }: CameraProps
       )}
 
       {isActive && (
-        <>
+        <div className="relative w-full aspect-[4/3]">
           <video 
             ref={videoRef} 
             autoPlay 
@@ -105,7 +105,7 @@ export function Camera({ onCapture, className, showOverlay = true }: CameraProps
           >
             <div className="w-12 h-12 rounded-full bg-red-500 pointer-events-none" />
           </button>
-        </>
+        </div>
       )}
 
       {isCaptured && (
