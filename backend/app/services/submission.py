@@ -46,4 +46,19 @@ class SubmissionService:
         # 3. Enqueue AI verification and Fraud checks
         celery_app.send_task("process_submission", args=[str(submission.id)])
         
+    @staticmethod
+    def review_submission(db: Session, submission_id: str, approved: bool):
+        from app.services.scoring import ScoringService
+        
+        submission = db.query(WorkSubmission).filter(WorkSubmission.id == submission_id).first()
+        if not submission:
+            raise HTTPException(status_code=404, detail="Submission not found")
+            
+        submission.status = "approved" if approved else "rejected"
+        db.commit()
+        
+        if approved:
+            # Trigger score recalculation for the day
+            ScoringService.calculate_daily_score(db, str(submission.employee_id), submission.created_at.date())
+            
         return submission
