@@ -5,7 +5,7 @@ import { MapPin, Star, TrendingUp, Award, CheckCircle2, Camera, AlertCircle } fr
 import { StatCard, ActivityItem, InfoCard } from "./shared";
 import Link from "next/link";
 
-const API = "http://localhost:8000/api/v1";
+import { API_V1 as API } from "@/lib/api_config";
 
 export default function CitizenDashboard({ user }: { user: any }) {
   const [stats, setStats] = useState<any>(null);

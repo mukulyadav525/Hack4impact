@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { StatCard, InfoCard } from "./shared";
 
-const API = "http://localhost:8000/api/v1";
+import { API_V1 as API } from "@/lib/api_config";
 
 type Submission = {
   id: string;

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Star, AlertTriangle, Send, Loader2, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { API_V1 } from "@/lib/api_config";
 
 export default function RatingPage() {
   const { submissionId } = useParams();
@@ -22,7 +23,7 @@ export default function RatingPage() {
   useEffect(() => {
     const fetchInfo = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/v1/public/rate-doctor/${submissionId}`);
+        const res = await fetch(`${API_V1}/public/rate-doctor/${submissionId}`);
         if (!res.ok) throw new Error("Consultation not found or invalid link.");
         const info = await res.json();
         setData(info);
@@ -40,7 +41,7 @@ export default function RatingPage() {
     setSubmitting(true);
     
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/public/rate-doctor/${submissionId}`, {
+      const res = await fetch(`${API_V1}/public/rate-doctor/${submissionId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

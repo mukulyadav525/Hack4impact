@@ -5,7 +5,7 @@ import { TrendingUp, CheckCircle, ShieldAlert, Award, Clock, ArrowLeft, Info, He
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
-const API = "http://localhost:8000/api/v1";
+import { API_V1 as API } from "@/lib/api_config";
 
 export default function ScoreBreakdownPage() {
   const { id } = useParams();

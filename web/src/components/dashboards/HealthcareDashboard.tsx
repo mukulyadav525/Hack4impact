@@ -5,7 +5,7 @@ import { User, ShieldCheck, Heart, Clock, CheckCircle2, AlertTriangle, TrendingU
 import { StatCard, ActivityItem, InfoCard } from "./shared";
 import Link from "next/link";
 
-const API = "http://localhost:8000/api/v1";
+import { API_V1 as API } from "@/lib/api_config";
 
 export default function HealthcareDashboard({ user }: { user: any }) {
   const [data, setData] = useState<any>(null);

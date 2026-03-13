@@ -6,7 +6,7 @@ import {
   BarChart2, Filter, RefreshCw
 } from "lucide-react";
 
-const API = "http://localhost:8000/api/v1";
+import { API_V1 as API } from "@/lib/api_config";
 
 const RISK_CONFIG = (score: number) => {
   if (score > 0.8) return { label: "High Risk", color: "text-red-400 bg-red-500/10 border-red-500/20" };

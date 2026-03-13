@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Shield, Users, BarChart3, Globe, CheckCircle, TrendingUp, Search } from "lucide-react";
 import Link from "next/link";
 
-const API = "http://localhost:8000/api/v1";
+import { API_V1 as API } from "@/lib/api_config";
 
 export default function TransparencyPage() {
   const [stats, setStats] = useState<any>(null);

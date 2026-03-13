@@ -1,7 +1,6 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
+import { API_V1 } from "@/lib/api_config";
 
 export default function DashboardLayout({
   children,
@@ -15,7 +14,7 @@ export default function DashboardLayout({
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:8000/api/v1/auth/me", {
+        const res = await fetch(`${API_V1}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) setUser(await res.json());

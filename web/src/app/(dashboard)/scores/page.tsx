@@ -6,7 +6,7 @@ import {
   CheckCircle2, ChevronDown, ChevronUp, Award, Flame
 } from "lucide-react";
 
-const API = "http://localhost:8000/api/v1";
+import { API_V1 as API } from "@/lib/api_config";
 
 const TIER_COLORS: Record<string, string> = {
   Platinum: "from-cyan-400 to-blue-500",

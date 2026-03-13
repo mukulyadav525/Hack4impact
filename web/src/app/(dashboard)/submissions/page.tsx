@@ -13,6 +13,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { API_V1 } from "@/lib/api_config";
 
 export default function SubmissionsPage() {
   const [stage, setStage] = useState<"before" | "after" | "details">("before");
@@ -27,7 +28,7 @@ export default function SubmissionsPage() {
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:8000/api/v1/auth/me", {
+      const response = await fetch(`${API_V1}/auth/me`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (response.ok) {
@@ -52,7 +53,7 @@ export default function SubmissionsPage() {
       const token = localStorage.getItem("token");
       const govtId = localStorage.getItem("govtId") || "MOCK-123";
 
-      const response = await fetch("http://localhost:8000/api/v1/submissions/submit", {
+      const response = await fetch(`${API_V1}/submissions/submit`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",

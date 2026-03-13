@@ -12,6 +12,7 @@ import {
   Camera
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { API_V1 } from "@/lib/api_config";
 
 export default function HistoryPage() {
   const [logs, setLogs] = useState<any[]>([]);
@@ -24,8 +25,8 @@ export default function HistoryPage() {
         const headers = { "Authorization": `Bearer ${token}` };
         
         const [attRes, subRes] = await Promise.all([
-          fetch("http://localhost:8000/api/v1/attendance/history", { headers }),
-          fetch("http://localhost:8000/api/v1/submissions/history", { headers })
+          fetch(`${API_V1}/attendance/history`, { headers }),
+          fetch(`${API_V1}/submissions/history`, { headers })
         ]);
         
         let allLogs: any[] = [];

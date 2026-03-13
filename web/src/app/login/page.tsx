@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, ArrowRight } from "lucide-react";
+import { API_V1 } from "@/lib/api_config";
 
 
 export default function LoginPage() {
@@ -23,7 +24,7 @@ export default function LoginPage() {
     const loginPin    = overridePin ?? pin;
 
     try {
-      const response = await fetch("http://localhost:8000/api/v1/auth/login", {
+      const response = await fetch(`${API_V1}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ govt_id: loginGovtId, pin: loginPin }),
@@ -39,7 +40,7 @@ export default function LoginPage() {
         setError(errData.detail || "Invalid Govt ID or PIN. Check credentials below.");
       }
     } catch {
-      setError("Cannot reach server at localhost:8000 — is the backend running?");
+      setError("Cannot reach server — please check your connection or try again later.");
     } finally {
       setIsLoading(false);
     }

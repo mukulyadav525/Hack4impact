@@ -6,7 +6,7 @@ import {
   XCircle, ChevronRight, FileText, X
 } from "lucide-react";
 
-const API = "http://localhost:8000/api/v1";
+import { API_V1 as API } from "@/lib/api_config";
 
 const STATUS_CONFIG: Record<string, {color: string; label: string; icon: any}> = {
   open:          { color: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20", label: "Open", icon: Clock },

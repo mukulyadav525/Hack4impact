@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { useState, useEffect } from "react";
+import { API_V1 } from "@/lib/api_config";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -25,7 +26,7 @@ export default function ProfilePage() {
   const fetchUser = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:8000/api/v1/auth/me", {
+      const response = await fetch(`${API_V1}/auth/me`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (response.ok) {
@@ -48,8 +49,8 @@ export default function ProfilePage() {
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/api/v1/employees/me", {
-        method: "PATCH",
+      const res = await fetch(`${API_V1}/employees/me`, {
+        method: "PUT",
         headers: { 
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
@@ -72,7 +73,7 @@ export default function ProfilePage() {
     setSaving(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/api/v1/employees/me", {
+      const res = await fetch(`${API_V1}/employees/me`, {
         method: "PATCH",
         headers: { 
           "Authorization": `Bearer ${token}`,

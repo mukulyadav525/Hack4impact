@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Scale, RefreshCw, AlertTriangle, CheckCircle2, Info, ArrowUpRight } from "lucide-react";
 
-const API = "http://localhost:8000/api/v1";
+import { API_V1 as API } from "@/lib/api_config";
 
 export default function CompliancePage() {
   const [audits, setAudits] = useState<any[]>([]);

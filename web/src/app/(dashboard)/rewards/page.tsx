@@ -12,6 +12,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 
+import { API_V1 } from "@/lib/api_config";
+
 export default function RewardsPage() {
   const [stats, setStats] = useState<any>(null);
   /* Rewards Stats */
@@ -21,7 +23,7 @@ export default function RewardsPage() {
     const fetchStats = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:8000/api/v1/stats/me", {
+        const res = await fetch(`${API_V1}/stats/me`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (res.ok) {
