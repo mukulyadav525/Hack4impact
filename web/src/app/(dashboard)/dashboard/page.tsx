@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 
 // Lazy load each dashboard to keep bundles small
-const PoliceDashboard     = dynamic(() => import("@/components/dashboards/PoliceDashboard"));
-const HealthcareDashboard = dynamic(() => import("@/components/dashboards/HealthcareDashboard"));
-const EducationDashboard  = dynamic(() => import("@/components/dashboards/EducationDashboard"));
-const CitizenDashboard    = dynamic(() => import("@/components/dashboards/CitizenDashboard"));
-const AdminDashboard      = dynamic(() => import("@/components/dashboards/AdminDashboard"));
-const DefaultDashboard    = dynamic(() => import("@/components/dashboards/DefaultDashboard"));
-const SupervisorDashboard = dynamic(() => import("@/components/dashboards/SupervisorDashboard"));
+const PoliceDashboard     = dynamic(() => import("@/components/dashboards/PoliceDashboard"), { ssr: false });
+const HealthcareDashboard = dynamic(() => import("@/components/dashboards/HealthcareDashboard"), { ssr: false });
+const EducationDashboard  = dynamic(() => import("@/components/dashboards/EducationDashboard"), { ssr: false });
+const CitizenDashboard    = dynamic(() => import("@/components/dashboards/CitizenDashboard"), { ssr: false });
+const AdminDashboard      = dynamic(() => import("@/components/dashboards/AdminDashboard"), { ssr: false });
+const DefaultDashboard    = dynamic(() => import("@/components/dashboards/DefaultDashboard"), { ssr: false });
+const SupervisorDashboard = dynamic(() => import("@/components/dashboards/SupervisorDashboard"), { ssr: false });
 
 function getDashboardType(user: any): string {
   const type = user?.employee_type?.toLowerCase();

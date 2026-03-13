@@ -13,7 +13,8 @@ import Link from "next/link";
 import { API_V1 as API } from "@/lib/api_config";
 
 function authHeaders() {
-  return { "Authorization": `Bearer ${localStorage.getItem("token")}`, "Content-Type": "application/json" };
+  if (typeof window === "undefined") return { "Content-Type": "application/json", "Authorization": "" };
+  return { "Authorization": `Bearer ${localStorage.getItem("token") || ""}`, "Content-Type": "application/json" };
 }
 
 export default function AdminDashboard({ user }: { user: any }) {
@@ -892,7 +893,7 @@ export default function AdminDashboard({ user }: { user: any }) {
                             <input
                               value={cw.name}
                               onChange={(e) => {
-                                const newCW = [...newRule.custom_weights];
+                                const newCW = [...(newRule.custom_weights as any[])];
                                 newCW[idx].name = e.target.value;
                                 setNewRule({ ...newRule, custom_weights: newCW });
                               }}
@@ -907,7 +908,7 @@ export default function AdminDashboard({ user }: { user: any }) {
                               step="0.05"
                               value={cw.weight}
                               onChange={(e) => {
-                                const newCW = [...newRule.custom_weights];
+                                const newCW = [...(newRule.custom_weights as any[])];
                                 newCW[idx].weight = parseFloat(e.target.value);
                                 setNewRule({ ...newRule, custom_weights: newCW });
                               }}
