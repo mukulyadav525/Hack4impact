@@ -107,7 +107,7 @@ export default function SubmissionsPage() {
                  </div>
                  <div className="relative group">
                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-                   <Camera onCapture={setBeforeImg} showOverlay={false} className="relative aspect-video rounded-[2rem]" />
+                   <Camera onCapture={setBeforeImg} showOverlay={false} className="relative rounded-[2rem] border-2 border-blue-500/10 shadow-inner" />
                  </div>
                  <div className="flex justify-end pt-4">
                    <button 
@@ -130,7 +130,7 @@ export default function SubmissionsPage() {
                  </div>
                  <div className="relative group">
                    <div className="absolute -inset-1 bg-gradient-to-r from-green-600 to-teal-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-                   <Camera onCapture={setAfterImg} showOverlay={false} className="relative aspect-video rounded-[2rem]" />
+                    <Camera onCapture={setAfterImg} showOverlay={false} className="relative rounded-[2rem] border-2 border-green-500/10 shadow-inner" />
                  </div>
                  <div className="flex justify-between items-center pt-4">
                    <button 
