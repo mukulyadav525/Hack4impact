@@ -628,6 +628,16 @@ SELECT e.id, (SELECT id FROM employees WHERE employee_type = 'supervisor' LIMIT 
 FROM employees e WHERE employee_type IN ('education', 'healthcare', 'police')
 ON CONFLICT DO NOTHING;
 
+-- 3.15 Bias Audits (Sample results)
+INSERT INTO bias_audits (metric_name, group_a, group_b, value, status, details) VALUES
+  ('Demographic Parity', 'General', 'SC/ST', 0.94, 'PASS', '{"notes": "Score distribution is equitable across demographic groups."}'),
+  ('Disparate Impact', 'OBC', 'General', 0.98, 'PASS', '{"notes": "Reward eligibility shows no significant bias."}');
+
+-- 3.16 Admin Actions (Immutable Audit Trail)
+INSERT INTO admin_actions (admin_id, action_type, target_entity, target_id, reason) VALUES
+  ((SELECT id FROM employees WHERE govt_id = 'ADMIN-2024-0004'), 'SCORING_OVERRIDE', 'daily_scores', 'ALL_PWD', 'Manual adjustment for PWD site visit verification'),
+  ((SELECT id FROM employees WHERE govt_id = 'ADMIN-2024-0004'), 'RULE_UPDATE', 'scoring_rules', 'EDU', 'Increased quality weight from 0.35 to 0.40');
+
 -- =============================================================================
 -- DONE
 -- =============================================================================
