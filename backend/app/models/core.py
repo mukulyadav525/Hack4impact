@@ -57,7 +57,7 @@ class Employee(Base):
     attendance = relationship("Attendance", back_populates="employee")
     submissions = relationship("WorkSubmission", back_populates="employee")
     daily_scores = relationship("DailyScore", back_populates="employee")
-    grievances = relationship("Grievance", back_populates="employee")
+    grievances = relationship("Grievance", back_populates="employee", foreign_keys="[Grievance.employee_id]")
 
 class Attendance(Base):
     __tablename__ = "attendance"
