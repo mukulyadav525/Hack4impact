@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS employees (
     failed_login_attempts INTEGER DEFAULT 0,
     lockout_until         TIMESTAMPTZ,
     is_active             BOOLEAN DEFAULT TRUE,
+    complaint_count       INTEGER DEFAULT 0,
     created_at            TIMESTAMPTZ DEFAULT NOW(),
     updated_at            TIMESTAMPTZ
 );
@@ -74,6 +75,7 @@ CREATE TABLE IF NOT EXISTS work_submissions (
     ai_quality_score INTEGER,
     status           TEXT,
     fraud_risk_score DECIMAL(4,3),
+    patient_phone    TEXT,
     details          JSONB,
     created_at       TIMESTAMPTZ DEFAULT NOW()
 );
@@ -342,6 +344,23 @@ CREATE TABLE IF NOT EXISTS score_breakdowns (
     component      TEXT,
     points         FLOAT,
     explanation    TEXT
+);
+
+CREATE TABLE IF NOT EXISTS patient_karma (
+    id              SERIAL PRIMARY KEY,
+    phone_number    TEXT UNIQUE,
+    complaint_count INTEGER DEFAULT 0,
+    created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS patient_reviews (
+    id              UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    submission_id   UUID REFERENCES work_submissions(id) ON DELETE CASCADE,
+    patient_phone   TEXT REFERENCES patient_karma(phone_number),
+    rating          INTEGER,
+    complaint_filed BOOLEAN DEFAULT FALSE,
+    comment         TEXT,
+    created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS bias_audits (
