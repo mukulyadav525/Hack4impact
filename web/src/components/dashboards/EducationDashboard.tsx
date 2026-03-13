@@ -58,7 +58,7 @@ export default function EducationDashboard({ user }: { user: any }) {
         <div className="lg:col-span-2 space-y-6">
           <InfoCard title="Quick Actions">
              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center group">
+                <Link href="/submissions?task_type=lesson_plan" className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center group">
                    <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
                       <Upload size={24} />
                    </div>
@@ -66,8 +66,8 @@ export default function EducationDashboard({ user }: { user: any }) {
                       <h4 className="font-bold text-white text-sm">Upload Lesson Plan</h4>
                       <p className="text-xs text-slate-500 mt-1">Submit before 8:00 AM for bonus</p>
                    </div>
-                </button>
-                <button className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center group">
+                </Link>
+                <Link href="/submissions?task_type=class_session" className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center group">
                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
                       <Video size={24} />
                    </div>
@@ -75,8 +75,8 @@ export default function EducationDashboard({ user }: { user: any }) {
                       <h4 className="font-bold text-white text-sm">Verify Class Session</h4>
                       <p className="text-xs text-slate-500 mt-1">Short video with AI student counting</p>
                    </div>
-                </button>
-                <button className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center group">
+                </Link>
+                <Link href="/submissions?task_type=digital_register" className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center group">
                    <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
                       <Clipboard size={24} />
                    </div>
@@ -84,8 +84,8 @@ export default function EducationDashboard({ user }: { user: any }) {
                       <h4 className="font-bold text-white text-sm">Digital Register</h4>
                       <p className="text-xs text-slate-500 mt-1">Mark student presence for today</p>
                    </div>
-                </button>
-                <button className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center group">
+                </Link>
+                <Link href="/submissions?task_type=ptm_log" className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center group">
                    <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-400 group-hover:scale-110 transition-transform">
                       <Users size={24} />
                    </div>
@@ -93,7 +93,7 @@ export default function EducationDashboard({ user }: { user: any }) {
                       <h4 className="font-bold text-white text-sm">PTM Log</h4>
                       <p className="text-xs text-slate-500 mt-1">Record parent-teacher meeting</p>
                    </div>
-                </button>
+                </Link>
              </div>
           </InfoCard>
 

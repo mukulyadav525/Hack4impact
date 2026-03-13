@@ -37,6 +37,11 @@ export default function SubmissionsPage() {
       }
     };
     fetchUser();
+
+    // Read initial task type from URL if provided
+    const params = new URLSearchParams(window.location.search);
+    const typeUrl = params.get('task_type');
+    if (typeUrl) setTaskType(typeUrl);
   }, []);
 
   const handleSubmit = async () => {
@@ -193,11 +198,13 @@ export default function SubmissionsPage() {
                               <option value="security_audit">Site Security Audit</option>
                             </>
                           )}
-                          {user?.employee_type !== "public" && user?.department?.name === "Higher Education" && (
+                          {user?.employee_type === "education" && (
                             <>
-                              <option value="attendance_verification">Class Attendance Verification</option>
+                              <option value="lesson_plan">Lesson Plan Upload</option>
+                              <option value="class_session">Class Session Verification</option>
+                              <option value="digital_register">Digital Register Entry</option>
+                              <option value="ptm_log">PTM Log</option>
                               <option value="exam_invigilation">Exam Invigilation</option>
-                              <option value="lab_session">Lab Session Verification</option>
                             </>
                           )}
                           {user?.employee_type !== "public" && (!user?.department?.name || user?.department?.name === "Public Works Department") && (
@@ -221,10 +228,10 @@ export default function SubmissionsPage() {
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {user?.department?.name === "Higher Education" && (
+                          {user?.employee_type === "education" && (
                             <>
                               <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Class Code</label>
+                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Class/Grade</label>
                                 <input 
                                   type="text" 
                                   placeholder="e.g. X-A" 
@@ -233,7 +240,7 @@ export default function SubmissionsPage() {
                                 />
                               </div>
                               <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Student Count</label>
+                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Student/Parent Count</label>
                                 <input 
                                   type="number" 
                                   placeholder="0" 
