@@ -7,6 +7,7 @@ class WorkSubmissionBase(BaseModel):
     latitude: float
     longitude: float
     details: Optional[dict] = None
+    patient_phone: Optional[str] = None # Added for healthcare workflow
 
 class WorkSubmissionCreate(WorkSubmissionBase):
     before_image_base64: str

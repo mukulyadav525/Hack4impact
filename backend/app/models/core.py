@@ -47,6 +47,7 @@ class Employee(Base):
     face_embedding_hash = Column(BYTEA)
     streak_count = Column(Integer, default=0)
     failed_login_attempts = Column(Integer, default=0)
+    complaint_count = Column(Integer, default=0)
     lockout_until = Column(DateTime(timezone=True), nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -91,6 +92,7 @@ class WorkSubmission(Base):
     status = Column(String) # approved, rejected, review
     fraud_risk_score = Column(DECIMAL(4, 3))
     details = Column(JSONB, nullable=True) # Role-specific details
+    patient_phone = Column(String, nullable=True) # For healthcare rating SMS
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     employee = relationship("Employee", back_populates="submissions")
@@ -278,3 +280,22 @@ class BiasAudit(Base):
     status = Column(String) # PASS, FAIL, WARNING
     audit_date = Column(DateTime(timezone=True), server_default=func.now())
     details = Column(JSONB)
+
+class PatientKarma(Base):
+    __tablename__ = "patient_karma"
+
+    id = Column(Integer, primary_key=True, index=True)
+    phone_number = Column(String, unique=True, index=True)
+    complaint_count = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class PatientReview(Base):
+    __tablename__ = "patient_reviews"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    submission_id = Column(UUID(as_uuid=True), ForeignKey("work_submissions.id"))
+    patient_phone = Column(String, ForeignKey("patient_karma.phone_number"))
+    rating = Column(Integer) # 1-5
+    complaint_filed = Column(Boolean, default=False)
+    comment = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

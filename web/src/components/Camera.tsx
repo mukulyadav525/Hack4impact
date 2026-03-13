@@ -85,26 +85,27 @@ export function Camera({ onCapture, className, showOverlay = true }: CameraProps
       )}
 
       {isActive && (
-        <div className="relative">
+        <>
           <video 
             ref={videoRef} 
             autoPlay 
             playsInline 
             muted 
-            className="w-full h-auto aspect-[4/3] object-cover"
+            className="absolute inset-0 w-full h-full object-cover"
           />
           {showOverlay && (
-            <div className="absolute inset-0 border-[30px] border-black/40 pointer-events-none">
+            <div className="absolute inset-0 border-[30px] border-black/40 pointer-events-none z-10">
               <div className="w-full h-full border-2 border-blue-500/50 rounded-full box-content -m-0.5" />
             </div>
           )}
           <button 
+            type="button"
             onClick={capture}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-white border-4 border-zinc-300 flex items-center justify-center shadow-lg active:scale-95 transition-all"
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-white border-4 border-zinc-300 flex items-center justify-center shadow-lg active:scale-95 transition-all z-20 hover:bg-zinc-100 cursor-pointer"
           >
-            <div className="w-12 h-12 rounded-full bg-red-500" />
+            <div className="w-12 h-12 rounded-full bg-red-500 pointer-events-none" />
           </button>
-        </div>
+        </>
       )}
 
       {isCaptured && (

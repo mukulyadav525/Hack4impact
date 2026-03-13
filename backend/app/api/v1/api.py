@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app.api.v1.endpoints import (
     auth, attendance, submissions, employees, stats, zones, scoring,
-    teachers, doctors, police, grievances, public, notifications, compliance
+    teachers, doctors, police, grievances, public, notifications, compliance, rating
 )
 
 api_router = APIRouter()
@@ -19,3 +19,4 @@ api_router.include_router(grievances.router, prefix="/grievances", tags=["grieva
 api_router.include_router(public.router, prefix="/stats", tags=["public"])
 api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 api_router.include_router(compliance.router, prefix="/compliance", tags=["compliance"])
+api_router.include_router(rating.router, prefix="/public", tags=["public"])

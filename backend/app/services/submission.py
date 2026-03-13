@@ -16,7 +16,8 @@ class SubmissionService:
         after_image_base64: str, 
         lat: float, 
         lon: float,
-        details: dict = None
+        details: dict = None,
+        patient_phone: str = None
     ):
         # 1. Geo-fencing verification
         if not AttendanceService.is_within_zone(db, employee_id, lat, lon):
@@ -39,7 +40,8 @@ class SubmissionService:
             status="processing",
             ai_confidence=0.0,
             ai_quality_score=0,
-            details=details
+            details=details,
+            patient_phone=patient_phone
         )
         db.add(submission)
         db.commit()
@@ -56,6 +58,12 @@ class SubmissionService:
             print(f"Post-processing error: {e}. Defaulting to manual review.")
             submission.status = "review"
             db.commit()
+            
+        if patient_phone:
+            print(f"\n" + "="*50)
+            print(f"🏥 SMS TRIGGER: To: {patient_phone}")
+            print(f"Message: Please rate your recent doctor consultation: http://localhost:3000/rate/{submission.id}")
+            print("="*50 + "\n")
             
         return submission
         

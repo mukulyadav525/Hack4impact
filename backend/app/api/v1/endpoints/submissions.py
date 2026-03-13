@@ -26,7 +26,8 @@ def submit_work(
         after_image_base64=submission_in.after_image_base64, 
         lat=submission_in.latitude, 
         lon=submission_in.longitude,
-        details=submission_in.details
+        details=submission_in.details,
+        patient_phone=submission_in.patient_phone
     )
 
 @router.get("/history", response_model=List[schemas.submission.WorkSubmission])

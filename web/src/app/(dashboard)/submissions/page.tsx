@@ -22,6 +22,7 @@ export default function SubmissionsPage() {
   const [details, setDetails] = useState<any>({});
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [user, setUser] = useState<any>(null);
+  const [patientPhone, setPatientPhone] = useState("");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -64,7 +65,8 @@ export default function SubmissionsPage() {
           after_image_base64: afterImg.split(',')[1],
           latitude: pos.coords.latitude,
           longitude: pos.coords.longitude,
-          details: details
+          details: details,
+          patient_phone: patientPhone ? patientPhone : undefined
         }),
       });
 
@@ -269,6 +271,17 @@ export default function SubmissionsPage() {
 
                           {user?.department?.name === "Health & Family Welfare" && (
                             <>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Patient Mobile (For OTP/Rating)</label>
+                                <input 
+                                  type="tel" 
+                                  maxLength={10}
+                                  placeholder="10-digit mobile number" 
+                                  className="w-full bg-white dark:bg-zinc-900 rounded-xl border-2 border-transparent focus:border-blue-500 p-3 text-sm"
+                                  onChange={(e) => setPatientPhone(e.target.value.replace(/\D/g, ''))}
+                                  value={patientPhone}
+                                />
+                              </div>
                               <div className="space-y-1.5">
                                 <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Patient ID/Room</label>
                                 <input 
