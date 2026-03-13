@@ -200,3 +200,25 @@ def get_user_stats(
             ).order_by(MonthlyScore.year.desc(), MonthlyScore.month.desc()).limit(6).all()
         ]
     }
+
+from app.services.stats import StatsService
+from typing import List, Any
+
+@router.get("/bias-audit", response_model=List[Any])
+def get_bias_audit(
+    db: Session = Depends(deps.get_db),
+    admin: Employee = Depends(deps.check_admin)
+) -> Any:
+    """
+    Run and retrieve fairness audits (Admin only).
+    """
+    return StatsService.run_bias_audit(db)
+
+@router.get("/transparency", response_model=Dict[str, Any])
+def get_transparency_stats(
+    db: Session = Depends(deps.get_db)
+) -> Any:
+    """
+    Get high-level aggregated stats for the public transparency page.
+    """
+    return StatsService.get_public_stats(db)

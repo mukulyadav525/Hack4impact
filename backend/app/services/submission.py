@@ -44,14 +44,27 @@ class SubmissionService:
         db.add(submission)
         db.commit()
         db.refresh(submission)
-        
-        # 3. Enqueue AI verification and Fraud checks
+        # 3. Handle Role-Specific Extensions
+        if details:
+            from app.models.core import PTMLog, Prescription, WardRound, PCRLog, Assessment
+            
+            if task_type == "PTM Log":
+                db.add(PTMLog(employee_id=employee_id, parent_name=details.get("parent_name"), discussion_summary=details.get("summary")))
+            elif task_type == "Prescription":
+                db.add(Prescription(employee_id=employee_id, patient_id=details.get("patient_id"), medications=details.get("medications")))
+            elif task_type == "Ward Round":
+                db.add(WardRound(employee_id=employee_id, ward_name=details.get("ward"), patient_count=details.get("count", 0)))
+            elif task_type == "PCR response":
+                db.add(PCRLog(employee_id=employee_id, incident_id=details.get("incident_id"), response_time_minutes=details.get("minutes")))
+            elif task_type == "Assessment":
+                db.add(Assessment(employee_id=employee_id, class_id=details.get("class_id"), average_score=details.get("avg_score", 0)))
+
+        db.commit()
+
+        # 4. Enqueue AI verification and Fraud checks
         try:
             from app.services.fraud import FraudService
             FraudService.run_fraud_checks(db, str(submission.id))
-            
-            # (In production we would background this via Celery)
-            # celery_app.send_task("process_submission", args=[str(submission.id)])
         except Exception as e:
             print(f"Post-processing error: {e}. Defaulting to manual review.")
             submission.status = "review"

@@ -239,6 +239,122 @@ CREATE TABLE IF NOT EXISTS notifications (
     created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- --- NEW TABLES (Goal: 34) ---
+
+CREATE TABLE IF NOT EXISTS roles (
+    id          SERIAL PRIMARY KEY,
+    name        TEXT UNIQUE NOT NULL,
+    permissions JSONB
+);
+
+CREATE TABLE IF NOT EXISTS grade_bands (
+    id          SERIAL PRIMARY KEY,
+    name        TEXT UNIQUE NOT NULL,
+    min_score   FLOAT,
+    multiplier  FLOAT DEFAULT 1.0
+);
+
+CREATE TABLE IF NOT EXISTS prescriptions (
+    id          UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    employee_id UUID REFERENCES employees(id) ON DELETE CASCADE,
+    patient_id  TEXT,
+    medications JSONB,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS ward_rounds (
+    id            UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    employee_id   UUID REFERENCES employees(id) ON DELETE CASCADE,
+    ward_name     TEXT,
+    patient_count INTEGER,
+    created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS ptm_logs (
+    id                 UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    employee_id        UUID REFERENCES employees(id) ON DELETE CASCADE,
+    parent_name        TEXT,
+    discussion_summary TEXT,
+    created_at         TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS assessments (
+    id            UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    employee_id   UUID REFERENCES employees(id) ON DELETE CASCADE,
+    class_id      TEXT,
+    average_score FLOAT,
+    created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS pcr_logs (
+    id                    UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    employee_id           UUID REFERENCES employees(id) ON DELETE CASCADE,
+    incident_id           TEXT,
+    arrival_time          TIMESTAMPTZ,
+    response_time_minutes INTEGER,
+    created_at            TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS penalties (
+    id          UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    employee_id UUID REFERENCES employees(id) ON DELETE CASCADE,
+    reason      TEXT,
+    amount      FLOAT,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS reviews (
+    id            UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    submission_id UUID REFERENCES work_submissions(id) ON DELETE CASCADE,
+    supervisor_id UUID REFERENCES employees(id),
+    comment       TEXT,
+    rating        INTEGER,
+    created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS reward_tiers (
+    id                SERIAL PRIMARY KEY,
+    name              TEXT UNIQUE NOT NULL,
+    min_monthly_score FLOAT,
+    benefits          JSONB
+);
+
+CREATE TABLE IF NOT EXISTS supervisor_assignments (
+    id            SERIAL PRIMARY KEY,
+    employee_id   UUID REFERENCES employees(id) ON DELETE CASCADE,
+    supervisor_id UUID REFERENCES employees(id),
+    created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS admin_actions (
+    id            UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    admin_id      UUID REFERENCES employees(id),
+    action_type   TEXT,
+    target_entity TEXT,
+    target_id     TEXT,
+    reason        TEXT,
+    created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS score_breakdowns (
+    id             UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    daily_score_id UUID REFERENCES daily_scores(id) ON DELETE CASCADE,
+    component      TEXT,
+    points         FLOAT,
+    explanation    TEXT
+);
+
+CREATE TABLE IF NOT EXISTS bias_audits (
+    id          SERIAL PRIMARY KEY,
+    metric_name TEXT,
+    group_a     TEXT,
+    group_b     TEXT,
+    value       FLOAT,
+    status      TEXT,
+    audit_date  TIMESTAMPTZ DEFAULT NOW(),
+    details     JSONB
+);
+
 -- =============================================================================
 -- 2. INDEXES
 -- =============================================================================
@@ -482,6 +598,35 @@ SELECT
   'Your performance score for ' || TO_CHAR(NOW() - INTERVAL '1 day', 'DD Mon YYYY') || ' has been published.',
   FALSE
 FROM employees WHERE employee_type NOT IN ('citizen');
+
+-- 3.13 Master Data for New Tables
+INSERT INTO roles (name, permissions) VALUES
+  ('Teacher',   '{"can_submit": true, "can_view_scores": true}'),
+  ('Doctor',    '{"can_submit": true, "can_view_scores": true}'),
+  ('Police',    '{"can_submit": true, "can_view_scores": true}'),
+  ('Supervisor','{"can_approve": true, "can_view_team": true}'),
+  ('Admin',     '{"can_override": true, "can_view_audit": true}')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO grade_bands (name, min_score, multiplier) VALUES
+  ('Grade-A', 80.0, 1.2),
+  ('Grade-B', 60.0, 1.0),
+  ('Grade-C', 0.0,  0.8)
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO reward_tiers (name, min_monthly_score, benefits) VALUES
+  ('Bronze',   60.0,  '{"bonus": 0, "perks": "Basic recognition"}'),
+  ('Silver',   70.0,  '{"bonus": 500, "perks": "Priority training"}'),
+  ('Gold',     80.0,  '{"bonus": 1000, "perks": "Salary increment recommendation"}'),
+  ('Platinum', 90.0,  '{"bonus": 2500, "perks": "Promotion eligibility"}'),
+  ('Diamond',  95.0,  '{"bonus": 5000, "perks": "State level recognition"}')
+ON CONFLICT (name) DO NOTHING;
+
+-- 3.14 Supervisor Assignments
+INSERT INTO supervisor_assignments (employee_id, supervisor_id)
+SELECT e.id, (SELECT id FROM employees WHERE employee_type = 'supervisor' LIMIT 1)
+FROM employees e WHERE employee_type IN ('education', 'healthcare', 'police')
+ON CONFLICT DO NOTHING;
 
 -- =============================================================================
 -- DONE
