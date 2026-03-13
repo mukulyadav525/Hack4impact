@@ -28,7 +28,7 @@ export default function GrievancesPage() {
   const fetchGrievances = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API}/grievances/`, {
+      const res = await fetch(`${API}/grievances`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) setGrievances(await res.json());
@@ -43,7 +43,7 @@ export default function GrievancesPage() {
     setSubmitting(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API}/grievances/`, {
+      const res = await fetch(`${API}/grievances`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify(form),

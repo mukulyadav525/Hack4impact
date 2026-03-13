@@ -50,7 +50,7 @@ export default function AdminDashboard({ user }: { user: any }) {
   const fetchEmployees = async () => {
     setLoadingUsers(true);
     try {
-      const res = await fetch(`${API}/employees/`, { headers: authHeaders() });
+      const res = await fetch(`${API}/employees`, { headers: authHeaders() });
       if (res.ok) setEmployees(await res.json());
     } catch {}
     setLoadingUsers(false);
@@ -58,21 +58,21 @@ export default function AdminDashboard({ user }: { user: any }) {
 
   const fetchZones = async () => {
     try {
-      const res = await fetch(`${API}/zones/`, { headers: authHeaders() });
+      const res = await fetch(`${API}/zones`, { headers: authHeaders() });
       if (res.ok) setZones(await res.json());
     } catch {}
   };
 
   const fetchAllSubmissions = async () => {
     try {
-      const res = await fetch(`${API}/submissions/list/`, { headers: authHeaders() });
+      const res = await fetch(`${API}/submissions/list`, { headers: authHeaders() });
       if (res.ok) setAllSubmissions(await res.json());
     } catch {}
   };
 
   const fetchStats = async () => {
     try {
-      const res = await fetch(`${API}/stats/admin/`, { headers: authHeaders() });
+      const res = await fetch(`${API}/stats/admin`, { headers: authHeaders() });
       if (res.ok) setStats(await res.json());
     } catch {}
   };
@@ -80,7 +80,7 @@ export default function AdminDashboard({ user }: { user: any }) {
   const fetchScoringRules = async () => {
     setLoadingRules(true);
     try {
-      const res = await fetch(`${API}/scoring/rules/`, { headers: authHeaders() });
+      const res = await fetch(`${API}/scoring/rules`, { headers: authHeaders() });
       if (res.ok) setScoringRules(await res.json());
     } catch {}
     setLoadingRules(false);
@@ -89,7 +89,7 @@ export default function AdminDashboard({ user }: { user: any }) {
   const fetchGrievances = async () => {
     setLoadingGrievances(true);
     try {
-      const res = await fetch(`${API}/grievances/`, { headers: authHeaders() });
+      const res = await fetch(`${API}/grievances`, { headers: authHeaders() });
       if (res.ok) setGrievances(await res.json());
     } catch {}
     setLoadingGrievances(false);
@@ -97,7 +97,7 @@ export default function AdminDashboard({ user }: { user: any }) {
 
   const fetchDepartments = async () => {
     try {
-      const res = await fetch(`${API}/departments/`, { headers: authHeaders() });
+      const res = await fetch(`${API}/departments`, { headers: authHeaders() });
       if (res.ok) setDepartments(await res.json());
     } catch {}
   };
