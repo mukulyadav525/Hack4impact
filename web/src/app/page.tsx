@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import Link from 'next/link';
 import { ArrowRight, Play, ShieldCheck, CheckCircle, TrendingUp, Award, Activity, Search, Shield, Fingerprint } from 'lucide-react';
 

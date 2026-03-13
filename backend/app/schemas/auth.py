@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from uuid import UUID
 from typing import Optional
 
@@ -19,6 +19,23 @@ class BiometricLogin(BaseModel):
     latitude: float
     longitude: float
 
+class DepartmentBasic(BaseModel):
+    id: int
+    name: str
+    dept_code: str
+
+    class Config:
+        from_attributes = True
+
+class ZoneBasic(BaseModel):
+    id: int
+    name: str
+    city: Optional[str] = None
+    district: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
 class Employee(BaseModel):
     id: UUID
     govt_id: str
@@ -26,6 +43,8 @@ class Employee(BaseModel):
     employee_type: str
     job_role: Optional[str] = None
     is_active: bool
-    
+    department: Optional[DepartmentBasic] = None
+    zone: Optional[ZoneBasic] = None
+
     class Config:
         from_attributes = True

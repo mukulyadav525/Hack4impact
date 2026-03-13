@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Camera } from "@/components/Camera";
 import { 
   FileUp, 

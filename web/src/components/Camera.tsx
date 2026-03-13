@@ -15,13 +15,6 @@ export function Camera({ onCapture, className }: CameraProps) {
   const [isActive, setIsActive] = useState(false);
   const [isCaptured, setIsCaptured] = useState(false);
 
-  useEffect(() => {
-    if (isActive && videoRef.current) {
-      startCamera();
-    }
-    return () => stopCamera();
-  }, [isActive]);
-
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -41,6 +34,13 @@ export function Camera({ onCapture, className }: CameraProps) {
       stream.getTracks().forEach(track => track.stop());
     }
   };
+
+  useEffect(() => {
+    if (isActive && videoRef.current) {
+      startCamera();
+    }
+    return () => stopCamera();
+  }, [isActive]);
 
   const capture = useCallback(() => {
     if (videoRef.current && canvasRef.current) {
