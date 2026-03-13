@@ -416,22 +416,26 @@ export default function AdminDashboard({ user }: { user: any }) {
       {/* Departments Tab */}
       {tab === "departments" && (
         <InfoCard title="Department Overview">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {(stats?.department_performance || []).map((dept: any, idx: number) => (
-              <div key={`${dept.code || dept.name}-${idx}`} className={`p-6 rounded-2xl bg-${dept.color}-500/5 border border-${dept.color}-500/20 space-y-3 cursor-pointer hover:bg-${dept.color}-500/10 transition-colors`} onClick={() => { setTab("users"); setSearch(dept.name); }}>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-bold text-white">{dept.name}</p>
-                    <p className={`text-xs font-bold text-${dept.color}-400 mt-0.5`}>{dept.code}</p>
+          {(!stats || !stats.department_performance || stats.department_performance.length === 0) ? (
+            <p className="text-slate-400 text-center py-8 text-sm">No department data available yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {stats.department_performance.map((dept: any, idx: number) => (
+                <div key={`${dept.code || dept.name}-${idx}`} className={`p-6 rounded-2xl bg-${dept.color}-500/5 border border-${dept.color}-500/20 space-y-3 cursor-pointer hover:bg-${dept.color}-500/10 transition-colors`} onClick={() => { setTab("users"); setSearch(dept.name); }}>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-bold text-white">{dept.name}</p>
+                      <p className={`text-xs font-bold text-${dept.color}-400 mt-0.5`}>{dept.code}</p>
+                    </div>
+                    <span className={`text-xs bg-${dept.color}-500/10 text-${dept.color}-400 px-2 py-1 rounded-full border border-${dept.color}-500/20 font-bold`}>
+                      {dept.employees} staff
+                    </span>
                   </div>
-                  <span className={`text-xs bg-${dept.color}-500/10 text-${dept.color}-400 px-2 py-1 rounded-full border border-${dept.color}-500/20 font-bold`}>
-                    {dept.employees} staff
-                  </span>
+                  <p className="text-xs text-slate-400">Zone: {dept.zone}</p>
                 </div>
-                <p className="text-xs text-slate-400">Zone: {dept.zone}</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </InfoCard>
       )}
 
@@ -529,7 +533,7 @@ export default function AdminDashboard({ user }: { user: any }) {
                       </div>
                     </div>
 
-                    {rule.context_bonus_formula && rule.context_bonus_formula.length > 0 && (
+                    {rule.context_bonus_formula && Array.isArray(rule.context_bonus_formula) && rule.context_bonus_formula.length > 0 && (
                       <div className="space-y-2 pt-2 border-t border-white/5">
                         <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Context Bonuses</p>
                         <div className="flex flex-wrap gap-2">
@@ -679,6 +683,7 @@ export default function AdminDashboard({ user }: { user: any }) {
           )}
         </InfoCard>
       )}
+
       {/* Grievances Tab */}
       {tab === "grievances" && (
         <InfoCard title="Employee Grievance & Disputes">
