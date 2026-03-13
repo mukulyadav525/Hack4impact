@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { API_V1 } from "@/lib/api_config";
