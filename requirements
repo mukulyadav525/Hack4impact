@@ -1,0 +1,627 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{tcolorbox}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[T1]{fontenc}
+\usepackage{setspace}
+\usepackage{pifont}
+
+\definecolor{govblue}{RGB}{0, 57, 107}
+\definecolor{govorange}{RGB}{255, 140, 0}
+\definecolor{govgreen}{RGB}{0, 128, 64}
+\definecolor{govgray}{RGB}{100, 100, 100}
+\definecolor{lightblue}{RGB}{220, 235, 250}
+\definecolor{lightorange}{RGB}{255, 245, 220}
+\definecolor{lightgreen}{RGB}{220, 250, 235}
+\definecolor{lightgray}{RGB}{245, 245, 245}
+\definecolor{darktext}{RGB}{30, 30, 30}
+\definecolor{checkgreen}{RGB}{0, 150, 70}
+\definecolor{mvpblue}{RGB}{0, 90, 180}
+\definecolor{p1orange}{RGB}{200, 100, 0}
+\definecolor{p2purple}{RGB}{100, 0, 160}
+\definecolor{lightcheck}{RGB}{235, 255, 240}
+\definecolor{lightmvp}{RGB}{225, 240, 255}
+\definecolor{lightp1}{RGB}{255, 240, 220}
+\definecolor{lightp2}{RGB}{245, 230, 255}
+
+\tcbuselibrary{skins, breakable}
+\newtcolorbox{infobox}[1][]{ colback=lightblue, colframe=govblue, fonttitle=\bfseries, title=#1, arc=4pt, boxrule=0.7pt, left=6pt, right=6pt, top=4pt, bottom=4pt }
+\newtcolorbox{legendbox}[1][]{ colback=lightgray, colframe=govgray, fonttitle=\bfseries, title=#1, arc=4pt, boxrule=0.5pt, left=6pt, right=6pt, top=4pt, bottom=4pt }
+
+\newcommand{\cbox}{$\square$}
+\newcommand{\mvptag}{\textcolor{white}{\colorbox{mvpblue}{\tiny\textbf{\ MVP\ }}}}
+\newcommand{\ponekwtag}{\textcolor{white}{\colorbox{p1orange}{\tiny\textbf{\ P1\ }}}}
+\newcommand{\ptwokwtag}{\textcolor{white}{\colorbox{p2purple}{\tiny\textbf{\ P2\ }}}}
+\newcommand{\indiatag}{\textcolor{white}{\colorbox{govgreen}{\tiny\textbf{INDIA}}}}
+\newcommand{\critag}{\textcolor{white}{\colorbox{red!70!black}{\tiny\textbf{\ P0\ }}}}
+
+\titleformat{\section}{\color{govblue}\Large\bfseries}{\color{govorange}\thesection.}{0.6em}{}[\vspace{-6pt}\rule{\linewidth}{0.8pt}\vspace{2pt}]
+\titleformat{\subsection}{\color{govblue}\normalsize\bfseries}{\color{govorange}\thesubsection.}{0.5em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.6pt}
+\fancyhead[L]{\color{govblue}\small\textbf{GovTrack AI} --- Feature Checklist}
+\fancyhead[R]{\color{govgray}\small Complete Build Checklist v1.0}
+\fancyfoot[L]{\color{govgray}\small \textit{Confidential --- For Hackathon \& Policy Use}}
+\fancyfoot[R]{\color{govgray}\small \thepage}
+
+\hypersetup{colorlinks=true, linkcolor=govblue, urlcolor=govorange}
+
+% Checklist row command: \clrow{Priority Tag}{Feature Name}{Notes}
+\newcommand{\clrow}[3]{#1 & \cbox & #2 & #3 \\}
+
+\begin{document}
+
+% ── TITLE PAGE ──────────────────────────────────────────────────────────────
+\begin{titlepage}
+\pagecolor{checkgreen}\color{white}\centering\vspace*{1.5cm}
+{\fontsize{11}{13}\selectfont \textbf{GOVTRACK AI --- COMPLETE FEATURE CHECKLIST}}\\[0.3cm]
+{\color{govorange}\rule{12cm}{1.5pt}}\\[0.8cm]
+{\fontsize{34}{40}\selectfont \textbf{CHECKLIST}}\\[0.3cm]
+{\fontsize{20}{24}\selectfont \textit{Every Feature. Every Task. Every Module.}}\\[0.4cm]
+{\fontsize{14}{18}\selectfont GovTrack AI --- Government Employee Credit \& Performance System}\\[0.6cm]
+{\color{govorange}\rule{12cm}{1pt}}\\[1cm]
+\begin{tcolorbox}[colback=white!10!checkgreen, colframe=govorange, arc=8pt, boxrule=1.5pt, width=13cm, halign=center]
+\color{white}\large
+A comprehensive feature-by-feature checklist for every component\\
+of GovTrack AI --- from mobile app to backend, AI pipeline\\
+to India-specific modules. Print, assign, and tick off.
+\end{tcolorbox}
+\vspace{1.2cm}
+\begin{tabular}{ll}
+\textbf{Document:} & Feature Build Checklist \\
+\textbf{Version:} & v1.0 \\
+\textbf{Date:} & March 2026 \\
+\textbf{Total Features:} & 200+ individual tasks across 15 modules \\
+\end{tabular}
+\vspace{1cm}
+{\color{govorange}\rule{12cm}{1.5pt}}
+\end{titlepage}
+
+\pagecolor{white}\color{darktext}
+\newpage
+
+% ── LEGEND ──────────────────────────────────────────────────────────────────
+\begin{legendbox}[Priority Legend \& How to Use This Checklist]
+\begin{tabular}{lp{10cm}}
+\critag & \textbf{P0 --- Critical/Blocker:} Must be done before any testing. App won't function without this. \\[2pt]
+\mvptag & \textbf{MVP:} Required for hackathon demo (24--48 hour build). \\[2pt]
+\ponekwtag & \textbf{P1 --- Phase 1:} Required for production v1.0 launch (0--6 months). \\[2pt]
+\ptwokwtag & \textbf{P2 --- Phase 2:} Required for full national rollout (6--18 months). \\[2pt]
+\indiatag & \textbf{INDIA:} India-specific module (NHM, MGNREGS, SBM, JJM, etc.). \\[2pt]
+$\square$ & Empty checkbox --- not yet completed. Check off when done. \\
+\end{tabular}
+\end{legendbox}
+
+\vspace{0.5cm}
+\setcounter{tocdepth}{1}
+\tableofcontents
+\newpage
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Project Setup \& Infrastructure}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\critag}{Create GitHub monorepo with folder structure}{/mobile, /backend, /web, /ml, /infra, /docs}
+\clrow{\critag}{Set up Python virtual environment + requirements.txt}{FastAPI, SQLAlchemy, Celery, boto3, openai, alembic}
+\clrow{\critag}{Set up React Native project (Expo SDK 50)}{expo init, configure EAS Build}
+\clrow{\critag}{Set up Next.js 14 project for web dashboard}{TypeScript, Tailwind CSS, ESLint, Prettier}
+\clrow{\critag}{Configure PostgreSQL database (local dev)}{Docker Compose with postgres:15-alpine + PostGIS}
+\clrow{\critag}{Configure Redis (local dev)}{Docker Compose redis:7-alpine}
+\clrow{\mvptag}{Set up .env files with all secrets}{OpenAI API key, DB URL, S3 credentials, JWT secret}
+\clrow{\mvptag}{Configure AWS S3 bucket for image uploads}{Bucket: govtrack-media; CORS policy; presigned URL config}
+\clrow{\ponekwtag}{Set up AWS EKS cluster (Kubernetes)}{3-node group; auto-scaling configured; namespace per env}
+\clrow{\ponekwtag}{Configure AWS RDS PostgreSQL (Multi-AZ)}{db.r6g.xlarge; automated backups; parameter group tuned}
+\clrow{\ponekwtag}{Configure AWS ElastiCache Redis cluster}{3-shard cluster mode; failover enabled}
+\clrow{\ponekwtag}{Set up AWS CloudFront CDN}{Distribution for S3 media; custom domain; SSL cert via ACM}
+\clrow{\ponekwtag}{Set up GitHub Actions CI/CD pipeline}{Lint $\rightarrow$ test $\rightarrow$ build $\rightarrow$ push ECR $\rightarrow$ deploy staging}
+\clrow{\ponekwtag}{Configure AWS WAF on API Gateway}{OWASP Core Rule Set; rate limiting rules}
+\clrow{\ponekwtag}{Set up Grafana + Prometheus monitoring}{Custom dashboards: API latency, submission queue depth, error rates}
+\clrow{\ponekwtag}{Set up AWS CloudWatch log groups + alarms}{Alarm on: 5xx rate $>$1\%, queue depth $>$1000, DB CPU $>$80\%}
+\clrow{\ptwokwtag}{Configure AWS OpenSearch cluster}{3-node; 200GB each; audit log index lifecycle policy}
+\clrow{\ptwokwtag}{Set up AWS SageMaker model endpoint}{EfficientNet-B4; auto-scaling 2--20 instances; A/B test variant}
+\clrow{\ptwokwtag}{Implement Velero backup for Kubernetes}{Daily cluster state backup to S3}
+\clrow{\ptwokwtag}{Cross-region replication (ap-south-1 $\rightarrow$ ap-southeast-1)}{S3, RDS snapshot copy; DR runbook documented}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Database \& Migrations}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\critag}{Create Alembic migration: departments table}{id, name, ministry, state, dept\_code}
+\clrow{\critag}{Create Alembic migration: zones table}{id, dept\_id, name, boundary (PostGIS), city, district}
+\clrow{\critag}{Create Alembic migration: employees table}{UUID pk, govt\_id, name, dept, zone, employee\_type, category, face\_hash}
+\clrow{\critag}{Create Alembic migration: attendance table}{employee\_id, date, checkin/out times, GPS, status, streak\_count}
+\clrow{\critag}{Create Alembic migration: work\_submissions table}{All CV result fields, status, fraud\_risk\_score, image hashes}
+\clrow{\critag}{Create Alembic migration: daily\_scores table}{All score components, tier, scoring\_version}
+\clrow{\mvptag}{Create Alembic migration: monthly\_scores table}{Aggregated; reward\_eligible flag; fraud\_flag\_count}
+\clrow{\mvptag}{Create Alembic migration: rewards table}{Type, amount, trigger, ai\_justification, status, payment\_ref}
+\clrow{\mvptag}{Create Alembic migration: fraud\_flags table}{Flag type, risk score, evidence JSONB, status}
+\clrow{\mvptag}{Create Alembic migration: audit\_log table}{Append-only; entity, action, actor, checksums}
+\clrow{\ponekwtag}{Create all critical indexes}{employee+date on attendance; status+zone on submissions; GIST on zones}
+\clrow{\ponekwtag}{Enable Row-Level Security (RLS) on PostgreSQL}{Policy: users see only their dept data; admins see all}
+\clrow{\ponekwtag}{Write seed data scripts}{5 departments, 10 zones, 50 test employees with varied scenarios}
+\clrow{\ponekwtag}{Write DB backup and restore runbook}{Automated daily backup test; restore drill quarterly}
+\clrow{\indiatag}{Create reservation\_roster table}{SC/ST/OBC mandated vs. filled; compliance\_score}
+\clrow{\indiatag}{Create asha\_tasks table}{Beneficiary GPS match; incentive\_amount; nhm\_submitted flag}
+\clrow{\indiatag}{Create mgnregs\_muster table}{Worksite; workers JSONB; nefms\_submitted; wage\_credited}
+\clrow{\indiatag}{Create climate\_events table}{District; event\_type; affected\_zone\_ids; protection\_mode}
+\clrow{\indiatag}{Create transfer\_log table}{from/to zone; transfer\_risk\_score; flagged boolean}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Authentication Service}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\critag}{POST /auth/login endpoint}{govt\_id + PIN; returns JWT access + refresh tokens}
+\clrow{\critag}{JWT token generation (RS256)}{15-min access token; 30-day refresh; rotating key pairs}
+\clrow{\critag}{JWT token validation middleware}{Applied to all protected routes; role extracted from claims}
+\clrow{\critag}{Refresh token endpoint}{POST /auth/refresh; invalidates old refresh token (single-use)}
+\clrow{\critag}{Logout endpoint}{POST /auth/logout; blacklists refresh token in Redis}
+\clrow{\mvptag}{POST /auth/biometric-checkin endpoint}{Selfie upload $\rightarrow$ liveness check $\rightarrow$ face match $\rightarrow$ GPS zone validation}
+\clrow{\mvptag}{Geo-fence zone validation logic}{PostGIS ST\_Within check: GPS point within zone polygon}
+\clrow{\mvptag}{Account lockout after 5 failed PINs}{Redis counter; 30-min TTL; unlock via supervisor}
+\clrow{\ponekwtag}{Face liveness detection (anti-spoof)}{InsightFace or AWS Rekognition liveness; $\geq$95\% accuracy}
+\clrow{\ponekwtag}{Face embedding storage and matching}{ArcFace 512-dim; cosine similarity $\geq$0.65 threshold; hash-only stored}
+\clrow{\ponekwtag}{OAuth 2.0 PKCE for web admin login}{Next.js auth flow; session cookies; CSRF protection}
+\clrow{\ponekwtag}{RBAC middleware with 6 roles}{field\_worker, supervisor, dept\_head, district\_admin, state\_admin, central\_admin}
+\clrow{\ptwokwtag}{SAML 2.0 SSO for NIC/government identity provider}{NIC eGov SSO integration}
+\clrow{\ptwokwtag}{Aadhaar-based biometric authentication (UIDAI API)}{Phase 2; MeitY approval required first}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Submission Service}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\critag}{POST /submissions/work-proof endpoint}{Multipart upload; S3 storage; enqueue SQS AI task; return submission ID}
+\clrow{\critag}{S3 presigned URL generation for image upload}{Direct mobile $\rightarrow$ S3 upload; 60-second URL expiry}
+\clrow{\critag}{EXIF metadata extraction from uploaded images}{GPS lat/lon, timestamp, device model; compare vs. submitted values}
+\clrow{\critag}{Image compression validation}{Reject images $>$500 KB; reject non-JPEG/PNG; validate dimensions}
+\clrow{\critag}{GET /submissions/\{id\}/result endpoint}{Poll endpoint for AI result; status: processing/approved/rejected/review}
+\clrow{\mvptag}{SQS message enqueue for AI processing}{Message includes: s3\_keys, employee\_id, task\_type, submission\_id}
+\clrow{\mvptag}{Celery worker to consume SQS queue}{Process AI task; write result to DB; send push notification}
+\clrow{\mvptag}{Perceptual hash duplicate detection}{pHash + dHash; Redis global store; 90-day TTL}
+\clrow{\mvptag}{GPS zone validation for submission}{Submitted GPS must be within employee's assigned zone polygon}
+\clrow{\mvptag}{EXIF timestamp vs. server time validation}{Reject if EXIF timestamp $>$30 min difference from server time}
+\clrow{\ponekwtag}{POST /submissions/offline-sync endpoint}{Accept array of offline submissions; validate age $\leq$48hr; process sequentially}
+\clrow{\ponekwtag}{Task type enum enforcement}{Validate task\_type against department-specific allowed list}
+\clrow{\ponekwtag}{Image tamper detection (Error Level Analysis)}{ELA on JPEG compression artifacts; flag if tampering detected}
+\clrow{\ponekwtag}{Before/after image pair validation}{Both images required for photo tasks; GPS consistency check between pair}
+\clrow{\ponekwtag}{POST /submissions/dispute endpoint}{Create dispute ticket; 72-hr SLA; Grievance Review Agent assignment}
+\clrow{\ptwokwtag}{Video submission support (15s max)}{Frame extraction; sample frames for CV analysis; FFmpeg processing}
+\clrow{\ptwokwtag}{JJM Pipeline Progress Chain Validator}{Sequence validation: trench $\rightarrow$ pipe $\rightarrow$ backfill $\rightarrow$ meter; GPS route continuity}
+\clrow{\indiatag}{ASHA home visit geo-match endpoint}{POST /submissions/asha-visit; GPS vs. beneficiary Aadhaar address ($\leq$50m)}
+\clrow{\indiatag}{MGNREGS worksite group selfie endpoint}{POST /submissions/mgnregs-muster; AI headcount; face match vs. muster list}
+\clrow{\indiatag}{JJM water quality test submission}{POST /submissions/jjm-water-test; AI reads test kit image; extract pass/fail per param}
+\clrow{\indiatag}{JJM citizen OTP confirmation endpoint}{POST /submissions/jjm-confirm-otp; household OTP validates connection live}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{AI / Computer Vision Pipeline}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\critag}{GPT-4o Vision API integration for image analysis}{Structured JSON prompt; parse response; handle API errors with retry}
+\clrow{\critag}{AI result parser and DB write}{Map GPT-4o response to work\_submissions fields; write confidence, quality, flags}
+\clrow{\critag}{Auto-approve logic (confidence $\geq$ 0.85)}{Status $\rightarrow$ approved; trigger score calculation; send push notification}
+\clrow{\critag}{Manual review routing (0.60--0.85 confidence)}{Status $\rightarrow$ review; add to supervisor queue; notify supervisor}
+\clrow{\critag}{Auto-reject logic ($<$ 0.60 confidence)}{Status $\rightarrow$ rejected; reason code attached; employee notified}
+\clrow{\mvptag}{Fraud detection orchestration in Celery task}{After AI verify: run hash check, GPS velocity, ELA; aggregate risk score}
+\clrow{\mvptag}{GPS velocity anomaly detection function}{Haversine distance + time delta; flag if speed $>$120 kmh}
+\clrow{\mvptag}{Image hash store in Redis with TTL}{pHash + dHash; key: \texttt{imghash:\{phash\}:\{dhash\}}; TTL 90 days}
+\clrow{\ponekwtag}{EfficientNet-B4 model deployment on SageMaker}{Model artifact in S3; endpoint config; auto-scaling policy}
+\clrow{\ponekwtag}{Scene classification (10 categories) fine-tuned model}{Train on 50k labelled govt. work images; $\geq$92\% accuracy}
+\clrow{\ponekwtag}{Before/after change detection model}{Pixel-level diff scoring; meaningful change threshold $\geq$0.3}
+\clrow{\ponekwtag}{Isolation Forest anomaly detector training pipeline}{Train on 90 days historical; retrain monthly; 7 features}
+\clrow{\ponekwtag}{LLM weekly performance report generation}{GPT-4o prompt; 150-word formal summary; Hindi/English toggle}
+\clrow{\ponekwtag}{LLM reward justification generation}{Per-employee justification for reward recommendation; max 100 words}
+\clrow{\ponekwtag}{Natural language admin query interface}{NL $\rightarrow$ SQL via LLM; sandboxed read-only query execution; result as prose}
+\clrow{\ponekwtag}{AI model performance monitoring}{Track: accuracy drift, approval rate trends, false positive rate monthly}
+\clrow{\ptwokwtag}{Federated learning pipeline for CV model}{Train across departments without sharing raw images; PySyft / Flower}
+\clrow{\ptwokwtag}{AI Fairness Audit Engine (quarterly)}{Demographic parity, equal opportunity, calibration check across categories}
+\clrow{\indiatag}{ASHA AI task: immunization register OCR}{Read vaccination register photo; extract child ID, vaccine type, date}
+\clrow{\indiatag}{JJM AI task: water test kit reader}{Read BIS 10500 test kit image; extract parameter values + pass/fail}
+\clrow{\indiatag}{SBM AI task: toilet cleanliness scorer}{Rate cleanliness 0--100 from photo; compare vs. SBM grading rubric}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Scoring Service}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\critag}{Daily score calculation engine}{Formula: $S_d = w_1 A + w_2 W + w_3 Q + w_4 B + w_5 F + w_6 T$; write to daily\_scores}
+\clrow{\critag}{Attendance sub-score computation}{Full(20), Half(10), Partial(5), Grace(0), Absent(-5)}
+\clrow{\critag}{Work proof sub-score computation}{AI auto(30), Supervisor(25), Resubmit(15), Not submitted(0), Fraud(-20)}
+\clrow{\critag}{Streak tracking logic}{Consecutive approved days; grace day logic; reset on miss; streak count updated}
+\clrow{\mvptag}{Streak milestone bonus trigger}{One-time bonus: 7d(+50), 30d(+250), 60d(+600), 90d(+1000)}
+\clrow{\mvptag}{Daily streak multiplier application}{7d($\times$1.05), 30d($\times$1.15), 60d($\times$1.25), 90d($\times$1.35)}
+\clrow{\mvptag}{Tier assignment logic}{Bronze/Silver/Gold/Platinum/Diamond based on monthly score band}
+\clrow{\mvptag}{GET /scores/daily/\{employee\_id\}/\{date\} endpoint}{Returns full daily breakdown}
+\clrow{\mvptag}{GET /scores/monthly/\{employee\_id\}/\{year-month\} endpoint}{Aggregated monthly; reward\_eligible flag; streak peak}
+\clrow{\ponekwtag}{Monthly aggregation cron job (runs 1st of month)}{Aggregates daily scores; writes monthly\_scores; flags reward eligible}
+\clrow{\ponekwtag}{Public feedback / citizen rating integration}{Citizen rating (1--5 stars) mapped to 0--10 points; weighted by recency}
+\clrow{\ponekwtag}{Task complexity multiplier by job type}{Complex tasks (JJM installation, drain cleaning) get 1.2x multiplier}
+\clrow{\ponekwtag}{Scoring formula versioning}{Formula version stored with each score; backward-compatible history}
+\clrow{\ponekwtag}{Score recalculation on dispute resolution}{If dispute upheld, retroactively update daily + monthly score}
+\clrow{\indiatag}{Climate Protection Mode score adjustment}{NDMA Red: attendance\_pts = 20 regardless; no negative scores; streak preserved}
+\clrow{\indiatag}{Seasonal weight adjustment by zone/month}{Drain cleaning weighted higher June-September; road repair higher April-May}
+\clrow{\indiatag}{ASHA per-task incentive calculation}{Per-activity incentive rates from NHM schedule; auto-total per month}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Fraud Detection Service}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\critag}{Real-time fraud check on every submission}{Called after AI verify; runs hash, GPS velocity, ELA checks; writes fraud\_flags}
+\clrow{\critag}{Duplicate image detection (pHash + dHash)}{Redis global store; flag and reject duplicate; notify employee + supervisor}
+\clrow{\critag}{GPS velocity anomaly (impossible travel)}{$>$120 kmh between check-in and submission GPS $\rightarrow$ auto-flag}
+\clrow{\mvptag}{Fraud risk score aggregation}{Weighted sum of all flag risk scores; stored as fraud\_risk\_score on submission}
+\clrow{\mvptag}{Fraud investigation queue (admin view)}{GET /fraud/queue; sorted by risk score; one-click escalate}
+\clrow{\mvptag}{Nightly batch fraud scan (Celery beat)}{Scan all submissions from last 24h; Isolation Forest; flag new anomalies}
+\clrow{\ponekwtag}{Error Level Analysis (ELA) for image tampering}{JPEG recompression artifact analysis; flag if manipulation detected}
+\clrow{\ponekwtag}{Cross-employee collusion detection}{Same image hash submitted by $>$1 employee $\rightarrow$ fraud flag on both accounts}
+\clrow{\ponekwtag}{Supervisor bias detection}{Approval rate by category; flag if one category 15\%+ lower than others}
+\clrow{\ponekwtag}{Batch upload pattern detection}{$>$5 submissions within 10 minutes from same employee $\rightarrow$ flag}
+\clrow{\ponekwtag}{Anonymous whistleblower endpoint}{POST /fraud/report; no auth required; IP logged server-side only}
+\clrow{\ponekwtag}{Fraud penalty application}{-200 pts on confirmed fraud; account suspension after 3 flags/month}
+\clrow{\ptwokwtag}{Isolation Forest model training + deployment}{Train monthly on historical patterns; 7 features; contamination=0.03}
+\clrow{\ptwokwtag}{Face recognition cross-check on check-in replay}{Detect if same face used across multiple employee accounts}
+\clrow{\ptwokwtag}{CVC (Central Vigilance Commission) auto-referral}{Confirmed fraud patterns $>$threshold $\rightarrow$ generate CVC investigation brief}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Reward Service}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\mvptag}{Reward eligibility calculation (monthly cron)}{Check all monthly\_scores; identify employees crossing tier thresholds}
+\clrow{\mvptag}{Performance bonus trigger (3 months Gold+)}{5-15\% salary bonus; grade-based scaling; AI justification written}
+\clrow{\mvptag}{Reward recommendation list for HR Admin}{GET /rewards/recommendations; LLM justification per employee}
+\clrow{\mvptag}{HR Admin approve/reject reward endpoint}{PATCH /rewards/\{id\}/review; comment required on reject; audit logged}
+\clrow{\mvptag}{In-app reward notification}{Push notification on approval: ``Congratulations! Rs. X bonus earned.''}
+\clrow{\ponekwtag}{Salary increment trigger (6 months Platinum+)}{One-step pay band increment; routed to HR HRMS for payroll update}
+\clrow{\ponekwtag}{Formal recognition (Diamond tier)}{PDF certificate generated; LLM-written citation text; in-app badge}
+\clrow{\ponekwtag}{Contract-to-permanent recommendation (24 months)}{Auto-generated recommendation PDF; submitted to HR for approval}
+\clrow{\ponekwtag}{Promotion eligibility flag (18 months Platinum+)}{Flag written to HRMS integration; visible to HR officer}
+\clrow{\ponekwtag}{Skill development nomination (3 months Silver)}{NICSI/iGOT Karmayogi course nomination auto-generated}
+\clrow{\ponekwtag}{Penalty framework: automated point deductions}{-200 pts on confirmed fraud; Performance Improvement Plan at Bronze$\times$3}
+\clrow{\ponekwtag}{Reward calendar scheduler}{Monthly on 5th; quarterly eligibility review; annual contract-perm cycle}
+\clrow{\ptwokwtag}{PFMS API integration for salary bonus disbursement}{Wage bill submitted to PFMS; reconciliation polling; failure handling}
+\clrow{\indiatag}{Jan Dhan micro-bonus disbursement}{NPCI UPI bulk API; batch payment file; T+1 settlement; SMS notification}
+\clrow{\indiatag}{ASHA incentive auto-submission to NHM portal}{Monthly incentive bill generated; API submission; DBT tracking}
+\clrow{\indiatag}{DigiLocker Performance Passport issuance}{Signed PDF; DigiLocker issuer API; QR code embedded}
+\clrow{\indiatag}{MGNREGS NeFMS wage submission}{Day 0 verify $\rightarrow$ Day 1 muster close $\rightarrow$ Day 2 NeFMS submit $\rightarrow$ Day 3-7 credit}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Employee Mobile App (React Native)}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\critag}{Login screen (Govt ID + PIN)}{PIN keypad; show/hide toggle; forgot PIN flow; biometric option}
+\clrow{\critag}{Home dashboard screen}{Today's score, streak counter, attendance status, ``Mark Attendance'' CTA}
+\clrow{\critag}{Camera work proof capture screen}{In-app camera only (no gallery upload); before/after capture flow; task type picker}
+\clrow{\critag}{Submission confirmation + upload progress screen}{GPS stamp display; timestamp; task type confirm; upload progress bar}
+\clrow{\critag}{AI result notification \& screen}{Approved/Review/Rejected result with points earned or rejection reason}
+\clrow{\critag}{Check-in flow (geo-fenced selfie attendance)}{Live camera selfie; GPS zone check; liveness indicator; confirmation}
+\clrow{\critag}{Check-out flow}{Single tap; total hours display; daily score update animation}
+\clrow{\mvptag}{Score breakdown card (daily)}{Attendance pts, work pts, quality pts, streak bonus, feedback pts --- expandable}
+\clrow{\mvptag}{Attendance calendar (monthly heatmap)}{Calendar view: green/yellow/red per day; streak fire icon}
+\clrow{\mvptag}{Streak milestone animation (gamification)}{Confetti + sound on 7/30/60/90-day milestone; badge display}
+\clrow{\mvptag}{Task log screen}{List of all submissions; status badges; date/time; AI confidence shown}
+\clrow{\mvptag}{Offline mode --- queue submissions locally}{SQLite local store; ``Offline'' banner; auto-sync on connectivity}
+\clrow{\mvptag}{Push notification handler}{FCM; navigate to relevant screen on tap; permission request at onboarding}
+\clrow{\ponekwtag}{Reward progress screen}{Progress bar to next threshold; estimated days; past rewards list}
+\clrow{\ponekwtag}{Leaderboard screen (zone + department)}{Tier-grouped view; employee's own rank highlighted; refresh on pull}
+\clrow{\ponekwtag}{Employee profile + QR code screen}{Name, ID, department, tier badge, QR code; downloadable}
+\clrow{\ponekwtag}{Score dispute portal screen}{Select submission; describe issue; submit; track dispute status}
+\clrow{\ponekwtag}{Notification history screen}{All past notifications; mark as read; filter by type}
+\clrow{\ponekwtag}{Voice-guided UI (Hindi)}{TTS for key actions: check-in, submit work, view score; voice prompts}
+\clrow{\ponekwtag}{Multilingual support (6 languages in v1.0)}{Hindi, Tamil, Telugu, Bengali, Marathi, Kannada; i18n via i18next}
+\clrow{\ponekwtag}{Low data mode (image compression)}{Auto-compress to $\leq$500 KB before upload; 3G-friendly}
+\clrow{\ponekwtag}{Large font / accessibility mode}{Font scale 1.3x; high contrast toggle; screen reader support}
+\clrow{\ptwokwtag}{``My Earnings'' tab (Jan Dhan bonuses)}{Bonus history; payment status; expected next payment}
+\clrow{\indiatag}{ASHA worker task submission flow}{Beneficiary selector; home visit logging; immunization checklist}
+\clrow{\indiatag}{Climate protection mode banner}{``Flood alert active --- attendance auto-credited. Stay safe!'' banner on dashboard}
+\clrow{\indiatag}{Performance Passport download}{Request DigiLocker PDF; share sheet; download to device}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Supervisor Web Dashboard (Next.js)}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\critag}{Login page (OAuth / PIN)}{Web login; session cookie; 8-hr timeout}
+\clrow{\critag}{Pending review queue page}{List of submissions; AI confidence badge; before/after images side-by-side}
+\clrow{\critag}{Approve / Reject / Escalate actions}{Single click approve; comment modal for reject (mandatory); escalate routes to dept head}
+\clrow{\critag}{Bulk approve for high-confidence submissions}{Checkbox select; one-click approve for confidence $\geq$0.85; confirmation dialog}
+\clrow{\mvptag}{Zone live attendance map}{Mapbox; green/red pins per worker; click for employee details}
+\clrow{\mvptag}{Team performance overview (table + chart)}{Sort by score/tier/attendance; weekly trend sparklines per employee}
+\clrow{\mvptag}{Supervisor's own accuracy score display}{Approval accuracy \%; fraud catch rate; compared to dept average}
+\clrow{\ponekwtag}{Employee detail drill-down page}{Full score history; submission gallery; attendance calendar; fraud flags}
+\clrow{\ponekwtag}{Performance trend charts (Recharts)}{Line chart: 30-day avg score; bar chart: submissions by status; pie: tier distribution}
+\clrow{\ponekwtag}{Department analytics dashboard}{Zone-vs-zone comparison; heatmap calendar; export to CSV/PDF}
+\clrow{\ponekwtag}{Fraud flags queue (supervisor view)}{List of flagged submissions in supervisor's zone; one-click review}
+\clrow{\ponekwtag}{Notification panel}{Pending reviews count badge; escalation alerts; fraud alerts}
+\clrow{\ptwokwtag}{Natural language query bar}{Type question; LLM converts to data query; answer displayed as prose + chart}
+\clrow{\ptwokwtag}{Mobile-responsive supervisor dashboard}{Works on tablet; key queue accessible on phone in emergency}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Admin \& Government Portal}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\ponekwtag}{District Collector executive dashboard}{KPIs: zone performance, fraud rate, top/bottom workers; weekly trend}
+\clrow{\ponekwtag}{Department head analytics page}{Drill-down from district to department; LLM-generated weekly summary}
+\clrow{\ponekwtag}{HR Admin reward approval panel}{List of reward recommendations; LLM justification; approve/reject/defer}
+\clrow{\ponekwtag}{Employee bulk onboarding via CSV upload}{Template download; upload; validation report; preview before confirm}
+\clrow{\ponekwtag}{Zone management (create/edit zones)}{Map polygon drawing tool (Mapbox); assign to department}
+\clrow{\ponekwtag}{User management (create/suspend accounts)}{Admin CRUD for employees; supervisor assignment; role changes}
+\clrow{\ponekwtag}{Scoring formula management page}{View current weights; submit change request (requires central admin approval)}
+\clrow{\ponekwtag}{Audit log viewer}{Immutable log search; filter by entity/actor/date; export for RTI/audit}
+\clrow{\ponekwtag}{Leaderboard (city + state level)}{Top performers; tier distribution chart; Star Performer highlight}
+\clrow{\ptwokwtag}{State Admin dashboard}{Aggregated district-level performance; state-wide trend; scheme-wise breakdowns}
+\clrow{\ptwokwtag}{LLM policy recommendation report}{Monthly AI-generated workforce deployment/training recommendations}
+\clrow{\indiatag}{Reservation compliance dashboard}{SC/ST/OBC fill rate vs. mandate; red alert if below threshold; export for Liaison Officer}
+\clrow{\indiatag}{Sarpanch accountability public dashboard}{QR code at GP office; citizen-viewable performance score}
+\clrow{\indiatag}{RTI PIO dashboard}{Pending RTI deadlines countdown; auto-generated draft responses; one-click submit}
+\clrow{\indiatag}{Transfer Risk Score dashboard (officer view)}{Officers with High TRS flagged; transfer request log; escalation to cadre authority}
+\clrow{\indiatag}{Climate event management panel}{Active NDMA/IMD alerts; affected zones; Climate Protection Mode toggle (manual override)}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Notification \& Communication Service}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\critag}{Push notification: work proof approved/rejected}{FCM; include points earned; deep link to submission result}
+\clrow{\critag}{Push notification: attendance confirmed}{After check-in; include timestamp and zone confirmation}
+\clrow{\mvptag}{Push notification: streak milestone}{Gamified message; emoji; one-time per milestone}
+\clrow{\mvptag}{Push notification: reward earned}{Congratulations message with reward type and amount}
+\clrow{\ponekwtag}{SMS fallback for push notification failures}{AWS SNS; Hindi SMS template; 160-char limit}
+\clrow{\ponekwtag}{In-app notification centre}{All past notifications; unread count badge; mark all as read}
+\clrow{\ponekwtag}{Email notification for HR admins}{Reward batch ready for approval; fraud escalation; weekly summary}
+\clrow{\ponekwtag}{Notification preferences management}{Employee can mute non-critical notifications; language preference}
+\clrow{\indiatag}{SMS notification for Jan Dhan bonus credit}{Vernacular language SMS: ``GovTrack bonus of Rs. X credited''}
+\clrow{\indiatag}{ASHA incentive payment SMS (Hindi)}{Payment confirmation in Hindi; task breakdown; NHM reference number}
+\clrow{\indiatag}{Climate alert push notification}{``Flood/heatwave alert in your district. Attendance auto-credited. Stay safe.''}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{India-Specific Modules}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\multicolumn{4}{l}{\textbf{\color{govgreen}--- Reservation Compliance Tracker ---}} \\
+\clrow{\indiatag}{Reservation roster data model + API}{reservation\_roster table; GET /admin/reservation/compliance/\{dept\_id\}}
+\clrow{\indiatag}{Promotion skip alert logic}{If top-20\% SC/ST/OBC skipped while lower General promoted $\rightarrow$ auto discrepancy report}
+\clrow{\indiatag}{AI fairness quarterly audit job}{Demographic parity + equal opportunity check; report to HR + Liaison Officer}
+\clrow{\indiatag}{Reservation compliance dashboard widget}{Fill rate vs. mandate bars; red/amber/green traffic light per category}
+\addlinespace
+\multicolumn{4}{l}{\textbf{\color{govgreen}--- ASHA \& Anganwadi Module ---}} \\
+\clrow{\indiatag}{ASHA beneficiary registry integration}{Sync beneficiary list from RCH portal; GPS coordinates per household}
+\clrow{\indiatag}{Home visit GPS match validation}{ST\_DWithin(visit\_gps, beneficiary\_gps, 50m); logged in asha\_tasks}
+\clrow{\indiatag}{Immunization drive tracking flow}{Child ID scan; vaccine type selector; photo of register; AI verification}
+\clrow{\indiatag}{Maternal health checklist submission}{ANC1-4 visits; IFA tablet distribution; institutional delivery counselling}
+\clrow{\indiatag}{ASHA monthly incentive auto-calculation}{Per-task rates from NHM schedule; total bill PDF generated}
+\clrow{\indiatag}{NHM Payment Portal API integration}{Submit incentive bill; poll payment status; update DB on credit}
+\clrow{\indiatag}{Anganwadi check-in at AWC (geo-fenced)}{AWC location in zones table; mandatory check-in by 10:30 AM}
+\clrow{\indiatag}{POSHAN Tracker API sync}{Child measurements; growth charts; VHSND records; daily sync}
+\addlinespace
+\multicolumn{4}{l}{\textbf{\color{govgreen}--- Panchayati Raj \& MGNREGS ---}} \\
+\clrow{\indiatag}{MGNREGS worksite geo-fence setup}{Admin creates worksite polygon; tied to work order ID}
+\clrow{\indiatag}{Group selfie headcount AI}{AI headcount from group photo; compare vs. muster list count}
+\clrow{\indiatag}{Digital muster roll generation}{End-of-day auto-generate from verified attendance; GRS digital sign-off}
+\clrow{\indiatag}{NeFMS API integration for wage submission}{Mutual TLS; HMAC-signed payload; muster close $\rightarrow$ NeFMS submit $\rightarrow$ wage credit}
+\clrow{\indiatag}{Sarpanch performance score calculation}{Work order completion rate; fund utilization; grievance resolution}
+\clrow{\indiatag}{Citizen QR code portal for GP transparency}{Public-facing page at \texttt{govtrack.in/gp/\{gp\_id\}}; no login required}
+\addlinespace
+\multicolumn{4}{l}{\textbf{\color{govgreen}--- Monsoon \& Seasonal Adjustment ---}} \\
+\clrow{\indiatag}{IMD Open Data API polling (every 6 hours)}{Fetch district-level weather; store in climate\_events; auto-expire old events}
+\clrow{\indiatag}{NDMA RSS/webhook alert subscription}{Real-time Red/Orange alert ingestion; match to employee zone IDs}
+\clrow{\indiatag}{Climate Protection Mode activation logic}{Auto-trigger on Red alert; pause streak; set attendance\_pts = 20 for all in district}
+\clrow{\indiatag}{Seasonal weight adjustment by month/zone}{Config table: task\_type + month + zone + weight\_multiplier}
+\addlinespace
+\multicolumn{4}{l}{\textbf{\color{govgreen}--- RTI Auto-Response Module ---}} \\
+\clrow{\indiatag}{RTI portal webhook integration}{Subscribe to rtionline.gov.in API; classify incoming RTI applications}
+\clrow{\indiatag}{RTI auto-report generation (LLM + data)}{Classify query type; pull aggregated data; LLM-format into RTI-compliant response}
+\clrow{\indiatag}{PIO deadline dashboard}{30-day countdown per RTI; amber at 21 days; red at 25 days; auto-draft}
+\clrow{\indiatag}{Privacy filter for RTI responses}{No individual PII; aggregated only; officer-level data follows Sec 8(1)(j) rules}
+\addlinespace
+\multicolumn{4}{l}{\textbf{\color{govgreen}--- Jan Dhan Micro-Bonuses ---}} \\
+\clrow{\indiatag}{Jan Dhan account field in employee profile}{Optional field; validated against NPCI account format}
+\clrow{\indiatag}{Micro-bonus trigger rules configuration}{Admin-configurable thresholds: streak milestones, tier achievement, leaderboard top 3}
+\clrow{\indiatag}{NPCI UPI bulk payment file generation}{ISO 20022 pain.001 or NPCI JSON; batch prepared on 1st of month}
+\clrow{\indiatag}{Payment reconciliation poller}{Poll NPCI status API every 4 hours; update rewards table; retry on failure}
+\addlinespace
+\multicolumn{4}{l}{\textbf{\color{govgreen}--- Swachh Bharat Mission Alignment ---}} \\
+\clrow{\indiatag}{ODF zone assignment for sanitation workers}{Zone flagged as ODF-maintenance; weekly inspection submission required}
+\clrow{\indiatag}{Toilet cleanliness AI scoring}{SBM rubric-based cleanliness score from photo; alert BDO if reverting ODF}
+\clrow{\indiatag}{SBM construction milestone verification}{Geo-tagged photo per stage; GPS vs. household registered location}
+\clrow{\indiatag}{Zone Swachhata Score formula}{$0.4\overline{W} + 0.3 \text{ODF} + 0.2 \text{complaints} + 0.1 \text{attendance}$; feeds Swachh Survekshan}
+\addlinespace
+\multicolumn{4}{l}{\textbf{\color{govgreen}--- Jal Jeevan Mission Tracking ---}} \\
+\clrow{\indiatag}{JJM worksite + household registry sync}{Sync from JJM MIS API; household GPS coordinates}
+\clrow{\indiatag}{Pipeline installation progress chain validator}{Photo sequence enforcement; GPS route continuity check; NaN route GPS flagged}
+\clrow{\indiatag}{Water quality test kit AI reader}{OCR + CV on BIS 10500 test kit photo; extract turbidity/coliform/pH pass/fail}
+\clrow{\indiatag}{JJM MIS API sync (connection status + water quality)}{Bi-directional sync; GovTrack writes verified completions to JJM MIS}
+\clrow{\indiatag}{Citizen OTP confirmation for new connections}{SMS OTP to household; plumber enters OTP in app; confirms connection live}
+\addlinespace
+\multicolumn{4}{l}{\textbf{\color{govgreen}--- Transfer Prevention Mechanism ---}} \\
+\clrow{\indiatag}{Transfer Risk Score (TRS) calculation engine}{Formula: performance trend + transfer requests + tenure + complaints}
+\clrow{\indiatag}{Transfer request logging in transfer\_log table}{HR Admin logs any transfer request filed; auto-triggers TRS recalculation}
+\clrow{\indiatag}{High TRS escalation to cadre authority}{Auto-report to Chief Secretary / DoPT email + portal; immutable timestamp}
+\clrow{\indiatag}{Performance Passport PDF generation}{Cryptographically signed; complete posting history; DigiLocker push}
+\clrow{\indiatag}{Public district performance portal (DC/BDO level)}{Aggregate scores publicly viewable; no PII; QR code posted at DM office}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Security, Compliance \& Audit}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\critag}{TLS 1.3 enforcement on all endpoints}{Nginx config; $\leq$TLS 1.2 rejected; HSTS enabled}
+\clrow{\critag}{JWT RS256 key pair rotation}{Key pair rotation every 90 days; grace period for old tokens during transition}
+\clrow{\critag}{Field-level encryption for PII}{face\_hash, jan\_dhan\_account, phone encrypted at app layer; AES-256}
+\clrow{\ponekwtag}{AWS KMS CMK setup per data tier}{Separate CMKs: PII, media, logs, backups}
+\clrow{\ponekwtag}{Audit log write on all state changes}{Every API mutation writes to audit\_log with SHA-256 checksum}
+\clrow{\ponekwtag}{Append-only audit log enforcement}{DB role: INSERT only on audit\_log; no UPDATE/DELETE grants}
+\clrow{\ponekwtag}{VAPT (pre-launch)}{CERT-In empanelled auditor; OWASP Top 10 coverage; report + fix all Critical/High}
+\clrow{\ponekwtag}{PDPB 2023 compliance documentation}{Consent flow; data minimization audit; retention policy enforcement}
+\clrow{\ponekwtag}{Employee consent capture at onboarding}{Explicit consent screen in app: data usage, camera, GPS; logged with timestamp}
+\clrow{\ponekwtag}{Data retention job (90-day image purge)}{Cron: images older than 90 days deleted from S3; anonymized for ML}
+\clrow{\ptwokwtag}{Quarterly audit report auto-generation}{LLM-formatted audit summary for CAG/Vigilance; covers all flag resolutions}
+\clrow{\ptwokwtag}{Bug bounty programme (NCIIPC coordination)}{Responsible disclosure policy published; scope defined}
+\bottomrule
+\end{longtable}
+
+% ═══════════════════════════════════════════════════════════════════════
+\section{Testing \& QA}
+% ═══════════════════════════════════════════════════════════════════════
+
+\begin{longtable}{p{1cm} p{0.5cm} p{6cm} p{6cm}}
+\toprule
+\textbf{Pri.} & \textbf{} & \textbf{Task} & \textbf{Notes / Definition of Done} \\
+\midrule
+\endhead
+\clrow{\critag}{Unit tests for scoring formula (all edge cases)}{pytest; 100\% coverage on scoring engine; edge cases: grace day, fraud deduct, climate}
+\clrow{\critag}{Unit tests for fraud detection functions}{Hash dedup, GPS velocity, ELA; mock data covering all flag types}
+\clrow{\critag}{API integration tests (pytest + HTTPX)}{All endpoints tested: happy path, auth failure, validation error, not found}
+\clrow{\mvptag}{End-to-end test: full submission flow}{Employee login $\rightarrow$ check-in $\rightarrow$ submit work $\rightarrow$ AI result $\rightarrow$ score update}
+\clrow{\mvptag}{Seed demo data (5 employees, 3 zones, 30 days history)}{Varied scenarios: star performer, fraudster, consistent silver, ASHA worker}
+\clrow{\ponekwtag}{Load test: 10,000 concurrent submissions}{k6 or Locust; SLA: 95\% processed in $\leq$60s; 0 data loss}
+\clrow{\ponekwtag}{Mobile app E2E tests (Detox)}{Login, check-in, submit, view score; Android + iOS; CI integrated}
+\clrow{\ponekwtag}{AI model accuracy benchmark}{Test set of 1000 labelled images; $\geq$92\% accuracy; confusion matrix}
+\clrow{\ponekwtag}{Security testing (OWASP ZAP scan)}{Automated scan in CI; Critical/High findings must be resolved before deploy}
+\clrow{\ponekwtag}{Offline mode test (airplane mode simulation)}{Queue 5 submissions; reconnect; verify all sync correctly}
+\clrow{\ptwokwtag}{Chaos engineering tests}{Kill random microservice pods; verify system degrades gracefully; circuit breakers work}
+\clrow{\ptwokwtag}{Bias audit test suite}{Synthetic dataset with balanced categories; verify AI approval rate parity $\pm$5\%}
+\bottomrule
+\end{longtable}
+
+\vspace{0.5cm}
+
+% ── SUMMARY STATS BOX ────────────────────────────────────────────────────────
+\begin{infobox}[Checklist Summary]
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Category} & \textbf{Total Items} & \textbf{MVP Items} \\
+\midrule
+Project Setup \& Infrastructure & 20 & 7 \\
+Database \& Migrations & 19 & 10 \\
+Authentication Service & 14 & 7 \\
+Submission Service & 21 & 9 \\
+AI / CV Pipeline & 21 & 7 \\
+Scoring Service & 17 & 8 \\
+Fraud Detection Service & 15 & 5 \\
+Reward Service & 17 & 5 \\
+Employee Mobile App & 26 & 14 \\
+Supervisor Web Dashboard & 14 & 7 \\
+Admin \& Government Portal & 16 & 0 \\
+Notification Service & 11 & 3 \\
+India-Specific Modules & 44 & 0 \\
+Security, Compliance \& Audit & 12 & 0 \\
+Testing \& QA & 12 & 3 \\
+\midrule
+\textbf{Total} & \textbf{279} & \textbf{85} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{infobox}
+
+\vspace{1cm}
+\begin{center}
+{\color{checkgreen}\rule{12cm}{0.8pt}}\\[0.4cm]
+{\large\bfseries\color{govblue} GovTrack AI --- Feature Checklist v1.0}\\
+{\color{govgray}\small Document prepared for National AI Hackathon Submission, March 2026}
+\end{center}
+
+\end{document}
