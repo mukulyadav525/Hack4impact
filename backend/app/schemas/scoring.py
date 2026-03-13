@@ -7,6 +7,7 @@ class ScoringRuleBase(BaseModel):
     attendance_weight: float = 0.3
     quality_weight: float = 0.4
     count_weight: float = 0.3
+    custom_weights: Optional[List[dict]] = None
     context_bonus_formula: Optional[List[dict]] = None
 
 class ScoringRuleCreate(ScoringRuleBase):
@@ -16,6 +17,7 @@ class ScoringRuleUpdate(BaseModel):
     attendance_weight: Optional[float] = None
     quality_weight: Optional[float] = None
     count_weight: Optional[float] = None
+    custom_weights: Optional[List[dict]] = None
     context_bonus_formula: Optional[List[dict]] = None
 
 class ScoringRule(ScoringRuleBase):

@@ -35,6 +35,7 @@ def create_scoring_rule(
         attendance_weight=rule_in.attendance_weight,
         quality_weight=rule_in.quality_weight,
         count_weight=rule_in.count_weight,
+        custom_weights=rule_in.custom_weights,
         context_bonus_formula=rule_in.context_bonus_formula
     )
     db.add(rule)

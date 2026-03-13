@@ -5,7 +5,7 @@
 import { useState, useEffect } from "react";
 import {
   Users, Building2, MapPin, BarChart2, Search, Plus, Edit2, Trash2,
-  CheckCircle2, Clock, ShieldCheck, TrendingUp, AlertTriangle, Settings2, Activity
+  CheckCircle2, Clock, ShieldCheck, TrendingUp, AlertTriangle, Settings2, Activity, Target
 } from "lucide-react";
 import { StatCard, InfoCard } from "./shared";
 import Link from "next/link";
@@ -23,12 +23,20 @@ export default function AdminDashboard({ user }: { user: any }) {
   const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
   const [scoringRules, setScoringRules] = useState<any[]>([]);
   const [grievances, setGrievances] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [editUser, setEditUser] = useState<any>(null);
   const [editRule, setEditRule] = useState<any>(null);
   const [editGrievance, setEditGrievance] = useState<any>(null);
   const [isAddingRule, setIsAddingRule] = useState(false);
-  const [newRule, setNewRule] = useState({ dept_code: "", attendance_weight: 0.3, quality_weight: 0.4, count_weight: 0.3, context_bonus_formula: [] });
+  const [newRule, setNewRule] = useState({ 
+    dept_code: "", 
+    attendance_weight: 0.3, 
+    quality_weight: 0.4, 
+    count_weight: 0.3, 
+    custom_weights: [] as any[], 
+    context_bonus_formula: [] as any[] 
+  });
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingRules, setLoadingRules] = useState(false);
   const [loadingGrievances, setLoadingGrievances] = useState(false);
@@ -86,6 +94,13 @@ export default function AdminDashboard({ user }: { user: any }) {
     setLoadingGrievances(false);
   };
 
+  const fetchDepartments = async () => {
+    try {
+      const res = await fetch(`${API}/departments/`, { headers: authHeaders() });
+      if (res.ok) setDepartments(await res.json());
+    } catch {}
+  };
+
   useEffect(() => {
     fetchEmployees();
     fetchZones();
@@ -93,6 +108,7 @@ export default function AdminDashboard({ user }: { user: any }) {
     fetchStats();
     fetchScoringRules();
     fetchGrievances();
+    fetchDepartments();
   }, []);
 
   const handleSaveRule = async () => {
@@ -119,7 +135,14 @@ export default function AdminDashboard({ user }: { user: any }) {
       });
       if (res.ok) {
         setIsAddingRule(false);
-        setNewRule({ dept_code: "", attendance_weight: 0.3, quality_weight: 0.4, count_weight: 0.3, context_bonus_formula: [] });
+        setNewRule({ 
+          dept_code: "", 
+          attendance_weight: 0.3, 
+          quality_weight: 0.4, 
+          count_weight: 0.3, 
+          custom_weights: [] as any[], 
+          context_bonus_formula: [] as any[] 
+        });
         fetchScoringRules();
       } else {
         const error = await res.json();
@@ -571,6 +594,19 @@ export default function AdminDashboard({ user }: { user: any }) {
                       </div>
                     </div>
 
+                    {rule.custom_weights && Array.isArray(rule.custom_weights) && rule.custom_weights.length > 0 && (
+                      <div className="space-y-2 pt-2 border-t border-white/5">
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Custom Metric Domains</p>
+                        <div className="flex flex-wrap gap-2">
+                          {rule.custom_weights.map((cw: any, idx: number) => (
+                            <div key={idx} className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold">
+                              {cw.name}: {Math.round(cw.weight * 100)}%
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {rule.context_bonus_formula && Array.isArray(rule.context_bonus_formula) && rule.context_bonus_formula.length > 0 && (
                       <div className="space-y-2 pt-2 border-t border-white/5">
                         <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Context Bonuses</p>
@@ -603,49 +639,106 @@ export default function AdminDashboard({ user }: { user: any }) {
                   </div>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
                   <div className="grid grid-cols-3 gap-4">
                     <div>
                       <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Attendance Wt</label>
                       <input
                         type="number"
-                        step="0.1"
+                        step="0.05"
                         min="0"
                         max="1"
                         value={editRule.attendance_weight}
                         onChange={(e) => setEditRule({ ...editRule, attendance_weight: parseFloat(e.target.value) })}
-                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none font-mono"
                       />
                     </div>
                     <div>
                       <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Quality Wt</label>
                       <input
                         type="number"
-                        step="0.1"
+                        step="0.05"
                         min="0"
                         max="1"
                         value={editRule.quality_weight}
                         onChange={(e) => setEditRule({ ...editRule, quality_weight: parseFloat(e.target.value) })}
-                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none font-mono"
                       />
                     </div>
                     <div>
                       <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Quantity Wt</label>
                       <input
                         type="number"
-                        step="0.1"
+                        step="0.05"
                         min="0"
                         max="1"
                         value={editRule.count_weight}
                         onChange={(e) => setEditRule({ ...editRule, count_weight: parseFloat(e.target.value) })}
-                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none font-mono"
                       />
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                    <p className="text-xs font-bold text-slate-400 mb-4 flex items-center gap-2 uppercase">
+                      <Target size={14} /> Custom Metric Domains (%)
+                    </p>
+                    <div className="space-y-3">
+                      {(editRule.custom_weights || []).map((cw: any, idx: number) => (
+                        <div key={idx} className="flex gap-2 items-end">
+                          <div className="flex-1">
+                            <label className="text-[9px] text-slate-500 font-bold uppercase mb-1">Metric Name</label>
+                            <input
+                              value={cw.name}
+                              onChange={(e) => {
+                                const newCW = [...(editRule.custom_weights || [])];
+                                newCW[idx].name = e.target.value;
+                                setEditRule({ ...editRule, custom_weights: newCW });
+                              }}
+                              placeholder="e.g. Field Presence"
+                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/5 text-white text-xs outline-none"
+                            />
+                          </div>
+                          <div className="w-24">
+                            <label className="text-[9px] text-slate-500 font-bold uppercase mb-1">Weight (0-1)</label>
+                            <input
+                              type="number"
+                              step="0.05"
+                              value={cw.weight}
+                              onChange={(e) => {
+                                const newCW = [...(editRule.custom_weights || [])];
+                                newCW[idx].weight = parseFloat(e.target.value);
+                                setEditRule({ ...editRule, custom_weights: newCW });
+                              }}
+                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/5 text-white text-xs outline-none font-mono"
+                            />
+                          </div>
+                          <button 
+                            onClick={() => {
+                              const newCW = editRule.custom_weights.filter((_:any, i:number) => i !== idx);
+                              setEditRule({ ...editRule, custom_weights: newCW });
+                            }}
+                            className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      <button 
+                        onClick={() => {
+                          const newCW = [...(editRule.custom_weights || []), { name: "", weight: 0.1 }];
+                          setEditRule({ ...editRule, custom_weights: newCW });
+                        }}
+                        className="w-full py-2 rounded-lg border border-dashed border-white/10 text-slate-400 hover:text-white hover:border-white/20 text-xs font-bold transition-all"
+                      >
+                        + Add Dynamic Metric
+                      </button>
                     </div>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
                     <p className="text-xs font-bold text-blue-400 mb-4 flex items-center gap-2">
-                      <TrendingUp size={14} /> Context-Based Bonus Formulas
+                      <TrendingUp size={14} /> Contextual Bonuses
                     </p>
                     <div className="space-y-3">
                       {(editRule.context_bonus_formula || []).map((f: any, idx: number) => (
@@ -672,7 +765,7 @@ export default function AdminDashboard({ user }: { user: any }) {
                                 newFormula[idx].points = parseInt(e.target.value);
                                 setEditRule({ ...editRule, context_bonus_formula: newFormula });
                               }}
-                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/5 text-white text-xs outline-none"
+                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/5 text-white text-xs outline-none font-mono"
                             />
                           </div>
                           <div className="w-16">
@@ -685,7 +778,7 @@ export default function AdminDashboard({ user }: { user: any }) {
                                 newFormula[idx].max = parseInt(e.target.value);
                                 setEditRule({ ...editRule, context_bonus_formula: newFormula });
                               }}
-                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/5 text-white text-xs outline-none"
+                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/5 text-white text-xs outline-none font-mono"
                             />
                           </div>
                           <button 
@@ -734,52 +827,113 @@ export default function AdminDashboard({ user }: { user: any }) {
                   </div>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
                   <div>
-                    <label className="text-xs text-slate-500 font-bold uppercase block mb-1">Department Code</label>
-                    <input
-                      placeholder="e.g. POL-HR"
+                    <label className="text-xs text-slate-500 font-bold uppercase block mb-1">Department</label>
+                    <select
                       value={newRule.dept_code}
-                      onChange={(e) => setNewRule({ ...newRule, dept_code: e.target.value.toUpperCase() })}
-                      className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none uppercase"
-                    />
+                      onChange={(e) => setNewRule({ ...newRule, dept_code: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                    >
+                      <option value="">Select Department</option>
+                      {departments.map((d: any) => (
+                        <option key={d.id} value={d.dept_code}>{d.name} ({d.dept_code})</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Attendance Wt (0-1)</label>
+                      <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Attendance Wt</label>
                       <input
                         type="number"
-                        step="0.1"
+                        step="0.05"
                         min="0"
                         max="1"
                         value={newRule.attendance_weight}
                         onChange={(e) => setNewRule({ ...newRule, attendance_weight: parseFloat(e.target.value) })}
-                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none font-mono"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Quality Wt (0-1)</label>
+                      <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Quality Wt</label>
                       <input
                         type="number"
-                        step="0.1"
+                        step="0.05"
                         min="0"
                         max="1"
                         value={newRule.quality_weight}
                         onChange={(e) => setNewRule({ ...newRule, quality_weight: parseFloat(e.target.value) })}
-                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none font-mono"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Quantity Wt (0-1)</label>
+                      <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Quantity Wt</label>
                       <input
                         type="number"
-                        step="0.1"
+                        step="0.05"
                         min="0"
                         max="1"
                         value={newRule.count_weight}
                         onChange={(e) => setNewRule({ ...newRule, count_weight: parseFloat(e.target.value) })}
-                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none font-mono"
                       />
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                    <p className="text-xs font-bold text-slate-400 mb-4 flex items-center gap-2 uppercase">
+                      <Target size={14} /> Custom Metric Domains (%)
+                    </p>
+                    <div className="space-y-3">
+                      {(newRule.custom_weights || []).map((cw: any, idx: number) => (
+                        <div key={idx} className="flex gap-2 items-end">
+                          <div className="flex-1">
+                            <label className="text-[9px] text-slate-500 font-bold uppercase mb-1">Metric Name</label>
+                            <input
+                              value={cw.name}
+                              onChange={(e) => {
+                                const newCW = [...newRule.custom_weights];
+                                newCW[idx].name = e.target.value;
+                                setNewRule({ ...newRule, custom_weights: newCW });
+                              }}
+                              placeholder="e.g. Field Presence"
+                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/5 text-white text-xs outline-none"
+                            />
+                          </div>
+                          <div className="w-24">
+                            <label className="text-[9px] text-slate-500 font-bold uppercase mb-1">Weight (0-1)</label>
+                            <input
+                              type="number"
+                              step="0.05"
+                              value={cw.weight}
+                              onChange={(e) => {
+                                const newCW = [...newRule.custom_weights];
+                                newCW[idx].weight = parseFloat(e.target.value);
+                                setNewRule({ ...newRule, custom_weights: newCW });
+                              }}
+                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/5 text-white text-xs outline-none font-mono"
+                            />
+                          </div>
+                          <button 
+                            onClick={() => {
+                              const newCW = newRule.custom_weights.filter((_:any, i:number) => i !== idx);
+                              setNewRule({ ...newRule, custom_weights: newCW });
+                            }}
+                            className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      <button 
+                        onClick={() => {
+                          const newCW = [...(newRule.custom_weights || []), { name: "", weight: 0.1 }];
+                          setNewRule({ ...newRule, custom_weights: newCW });
+                        }}
+                        className="w-full py-2 rounded-lg border border-dashed border-white/10 text-slate-400 hover:text-white hover:border-white/20 text-xs font-bold transition-all"
+                      >
+                        + Add Dynamic Metric
+                      </button>
                     </div>
                   </div>
                 </div>

@@ -113,6 +113,7 @@ CREATE TABLE IF NOT EXISTS scoring_rules (
     attendance_weight     FLOAT DEFAULT 0.3,
     quality_weight        FLOAT DEFAULT 0.4,
     count_weight          FLOAT DEFAULT 0.3,
+    custom_weights        JSONB,
     context_bonus_formula JSONB,
     created_at            TIMESTAMPTZ DEFAULT NOW(),
     updated_at            TIMESTAMPTZ

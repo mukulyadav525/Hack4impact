@@ -173,6 +173,7 @@ class ScoringRule(Base):
     attendance_weight = Column(Float, default=0.3)
     quality_weight = Column(Float, default=0.4)
     count_weight = Column(Float, default=0.3)
+    custom_weights = Column(JSONB, default=list) # e.g. [{"name": "Community Feedback", "weight": 0.2}]
     context_bonus_formula = Column(JSONB, nullable=True) # [{"task_type": "...", "points": 5, "max": 20}]
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

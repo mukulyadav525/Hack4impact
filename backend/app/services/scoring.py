@@ -88,14 +88,28 @@ class ScoringService:
         if fraud_count > 0:
             fraud_penalty = float(50 * fraud_count)
             
-        # Final weighted score with climate multiplier
+        # Final weighted score calculation
+        # Base components
         raw_score = (
             (attendance_score * rule.attendance_weight) + 
             (quality_score * rule.quality_weight) + 
-            (work_score * rule.count_weight) + 
-            context_bonus - 
-            fraud_penalty
-        ) * climate_multiplier
+            (work_score * rule.count_weight)
+        )
+
+        # Dynamic Custom Weights (Domains)
+        if rule.custom_weights and isinstance(rule.custom_weights, list):
+            for cw in rule.custom_weights:
+                weight = float(cw.get("weight", 0))
+                # For now, custom domains default to 70% if no specific data is found, 
+                # or can be tied to specific metadata in the future.
+                # Here we assume the score for a custom domain is a baseline 70 (passing) 
+                # unless implemented otherwise.
+                domain_score = 70.0 
+                raw_score += (domain_score * weight)
+
+        # Bonuses and Penalties
+        raw_score = (raw_score + context_bonus - fraud_penalty) * climate_multiplier
+        
         total_score = float(max(0.0, min(100.0, raw_score)))
         
         # Determine tier
