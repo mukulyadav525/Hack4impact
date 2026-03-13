@@ -27,6 +27,8 @@ export default function AdminDashboard({ user }: { user: any }) {
   const [editUser, setEditUser] = useState<any>(null);
   const [editRule, setEditRule] = useState<any>(null);
   const [editGrievance, setEditGrievance] = useState<any>(null);
+  const [isAddingRule, setIsAddingRule] = useState(false);
+  const [newRule, setNewRule] = useState({ dept_code: "", attendance_weight: 0.3, quality_weight: 0.4, count_weight: 0.3, context_bonus_formula: [] });
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingRules, setLoadingRules] = useState(false);
   const [loadingGrievances, setLoadingGrievances] = useState(false);
@@ -106,6 +108,26 @@ export default function AdminDashboard({ user }: { user: any }) {
         fetchScoringRules();
       }
     } catch {}
+  };
+
+  const handleCreateRule = async () => {
+    try {
+      const res = await fetch(`${API}/scoring/rules`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(newRule),
+      });
+      if (res.ok) {
+        setIsAddingRule(false);
+        setNewRule({ dept_code: "", attendance_weight: 0.3, quality_weight: 0.4, count_weight: 0.3, context_bonus_formula: [] });
+        fetchScoringRules();
+      } else {
+        const error = await res.json();
+        alert(`Failed to create rule: ${error.detail || 'Unknown error'}`);
+      }
+    } catch (e) {
+      alert("Error creating scoring rule.");
+    }
   };
 
   const handleResolveGrievance = async (resolution: string, status: string = "resolved") => {
@@ -498,11 +520,25 @@ export default function AdminDashboard({ user }: { user: any }) {
       {/* Scoring Rules Tab */}
       {tab === "scoring" && (
         <InfoCard title="Reward & Scoring Configuration">
+          <div className="flex justify-between items-center mb-6">
+            <p className="text-sm text-slate-400">Configure point calculation rules for each department.</p>
+            <button 
+              onClick={() => setIsAddingRule(true)} 
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded-xl font-bold transition-all text-xs"
+            >
+              <Plus size={14} /> Create Rule
+            </button>
+          </div>
+          
           <div className="space-y-4">
             {loadingRules ? (
               <div className="flex justify-center py-10"><div className="w-6 h-6 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" /></div>
             ) : !scoringRules || !Array.isArray(scoringRules) || scoringRules.length === 0 ? (
-              <p className="text-slate-400 text-center py-8 text-sm">No scoring rules configured yet.</p>
+              <div className="text-center py-12 bg-black/20 rounded-2xl border border-white/5">
+                <Settings2 className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                <p className="text-slate-400 font-medium">No scoring rules configured yet.</p>
+                <p className="text-xs text-slate-500 mt-1">Click "Create Rule" to define weights for a department.</p>
+              </div>
             ) : (
               <div className="grid grid-cols-1 gap-4">
                 {scoringRules.map((rule) => (
@@ -679,6 +715,78 @@ export default function AdminDashboard({ user }: { user: any }) {
                 <div className="flex gap-3 mt-8 pt-6 border-t border-white/5">
                   <button onClick={() => setEditRule(null)} className="flex-1 py-4 rounded-2xl border border-white/10 text-slate-400 hover:text-white font-bold text-sm transition-all">Discard</button>
                   <button onClick={handleSaveRule} className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-xl shadow-blue-900/20 transition-all">Save Formula</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Add Rule Modal */}
+          {isAddingRule && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-[#0F2240] border border-white/10 rounded-3xl p-8 w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h3 className="text-2xl font-black text-white uppercase">New Scoring Rule</h3>
+                    <p className="text-sm text-slate-400">Define weights for a new department</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                    <Plus size={24} />
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="text-xs text-slate-500 font-bold uppercase block mb-1">Department Code</label>
+                    <input
+                      placeholder="e.g. POL-HR"
+                      value={newRule.dept_code}
+                      onChange={(e) => setNewRule({ ...newRule, dept_code: e.target.value.toUpperCase() })}
+                      className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none uppercase"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Attendance Wt (0-1)</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="1"
+                        value={newRule.attendance_weight}
+                        onChange={(e) => setNewRule({ ...newRule, attendance_weight: parseFloat(e.target.value) })}
+                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Quality Wt (0-1)</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="1"
+                        value={newRule.quality_weight}
+                        onChange={(e) => setNewRule({ ...newRule, quality_weight: parseFloat(e.target.value) })}
+                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Quantity Wt (0-1)</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="1"
+                        value={newRule.count_weight}
+                        onChange={(e) => setNewRule({ ...newRule, count_weight: parseFloat(e.target.value) })}
+                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-8 pt-6 border-t border-white/5">
+                  <button onClick={() => setIsAddingRule(false)} className="flex-1 py-4 rounded-2xl border border-white/10 text-slate-400 hover:text-white font-bold text-sm transition-all">Cancel</button>
+                  <button onClick={handleCreateRule} disabled={!newRule.dept_code} className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-bold text-sm shadow-xl shadow-emerald-900/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Create Rule</button>
                 </div>
               </div>
             </div>
