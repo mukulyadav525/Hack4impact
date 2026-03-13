@@ -37,3 +37,26 @@ def read_submission_history(
     Retrieve submission history for the current employee.
     """
     return db.query(models.core.WorkSubmission).filter(models.core.WorkSubmission.employee_id == current_user.id).all()
+@router.get("/review-queue", response_model=List[schemas.submission.WorkSubmission])
+def get_review_queue(
+    db: Session = Depends(get_db),
+    supervisor: models.core.Employee = Depends(deps.check_supervisor)
+) -> Any:
+    """
+    Get submissions waiting for review (for supervisors).
+    """
+    return db.query(models.core.WorkSubmission).filter(
+        models.core.WorkSubmission.status == "review"
+    ).all()
+
+@router.post("/{submission_id}/review")
+def review_submission(
+    submission_id: str,
+    approved: bool,
+    db: Session = Depends(get_db),
+    supervisor: models.core.Employee = Depends(deps.check_supervisor)
+) -> Any:
+    """
+    Approve or reject a submission (for supervisors).
+    """
+    return SubmissionService.review_submission(db, submission_id, approved)

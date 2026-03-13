@@ -9,8 +9,15 @@ class ScoringService:
     def calculate_daily_score(db: Session, employee_id: str, target_date: date):
         """
         Calculates the score for a specific day.
-        Score = (Attendance * 30%) + (Work Quality * 40%) + (Count * 30%) - Fraud Penalty
+        Score = (Attendance * 30%) + (Work Quality * 40%) + (Count * 30%) - Fraud Penalty + Context Bonus
         """
+        # Fetch Employee and Department
+        employee = db.query(Employee).filter(Employee.id == employee_id).first()
+        if not employee:
+            return None
+        
+        dept_code = employee.department.dept_code if employee.department else "DEFAULT"
+
         # 1. Attendance Score (100 if present, 0 if absent)
         attendance = db.query(Attendance).filter(
             Attendance.employee_id == employee_id,
@@ -18,6 +25,8 @@ class ScoringService:
         ).first()
         
         attendance_score = 100 if attendance else 0
+        if dept_code == "PUBLIC":
+            attendance_score = 100 # Citizens don't have mandatory check-ins for now
         
         # 2. Work Quality & Count
         submissions = db.query(WorkSubmission).filter(
@@ -26,20 +35,37 @@ class ScoringService:
             WorkSubmission.status == "approved"
         ).all()
         
+        context_bonus = 0
         if not submissions:
             work_score = 0
             quality_score = 0
         else:
-            # Count score: Min 1 submission for full sub-score in MVP? 
-            # Or proportional to avg daily count? Let's say 1 usage = 100 for MVP.
+            # Count score
             work_score = 100 
             
             # Quality score: Avg of AI quality scores (0-10 scale -> 0-100)
             avg_quality = sum(s.ai_quality_score for s in submissions) / len(submissions)
             quality_score = avg_quality * 10
+
+            # --- Context-Aware Bonuses ---
+            if dept_code == "POL-HR":
+                # Police focus on patrol coverage
+                patrol_count = sum(1 for s in submissions if s.task_type == "Beat Patrol Check")
+                context_bonus = min(20, patrol_count * 5)
+            elif dept_code == "HFW-HR":
+                # Health focus on impact tasks
+                health_tasks = sum(1 for s in submissions if s.task_type in ["Immunization Drive", "Patient Consultation"])
+                context_bonus = min(20, health_tasks * 7)
+            elif dept_code == "EDU-HR":
+                # Education focus on attendance verification
+                edu_tasks = sum(1 for s in submissions if s.task_type == "Class Attendance Record")
+                context_bonus = min(20, edu_tasks * 5)
+            elif dept_code == "PUBLIC":
+                # Citizens get bonus for civic reports
+                civic_tasks = sum(1 for s in submissions if s.task_type in ["Garbage Dump Report", "Pothole Report", "Public Infrastructure Feedback"])
+                context_bonus = min(30, civic_tasks * 10) # Higher incentive for public participation
             
         # 3. Fraud Penalty
-        # Any fraud flag reduces the score significantly
         fraud_penalty = 0
         fraud_count = db.query(WorkSubmission).filter(
             WorkSubmission.employee_id == employee_id,
@@ -51,7 +77,7 @@ class ScoringService:
             fraud_penalty = 50 * fraud_count
             
         # Final weighted score
-        total_score = (attendance_score * 0.3) + (quality_score * 0.4) + (work_score * 0.3) - fraud_penalty
+        total_score = (attendance_score * 0.3) + (quality_score * 0.4) + (work_score * 0.3) + context_bonus - fraud_penalty
         total_score = max(0, min(100, total_score))
         
         # Determine tier

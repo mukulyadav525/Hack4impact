@@ -3,8 +3,13 @@
 import { 
   TrendingUp, 
   Calendar, 
+  MapPin,
   CheckCircle2, 
-  AlertTriangle 
+  AlertTriangle,
+  User,
+  Clock,
+  ShieldCheck,
+  Star
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -36,47 +41,73 @@ export default function DashboardPage() {
 
   if (loading) return <div>Loading dashboard...</div>;
 
+  const roleStats: any = {
+    "Police": [
+      { title: "Patrol Coverage", value: "88", unit: "% Today", change: "+2.1%", icon: MapPin, color: "blue" },
+      { title: "Avg Response Time", value: "4.2", unit: "mins", change: "-0.5m", icon: Clock, color: "indigo" },
+      { title: "Case Closure", value: "12", unit: "this week", change: "+4", icon: CheckCircle2, color: "green" },
+      { title: "Area Checked", value: "24", unit: "km²", change: "On target", icon: TrendingUp, color: "orange" },
+    ],
+    "Healthcare": [
+      { title: "Patients Seen", value: "42", unit: "today", change: "+12%", icon: User, color: "blue" },
+      { title: "Immunizations", value: "18", unit: "verified", change: "Keep going", icon: ShieldCheck, color: "indigo" },
+      { title: "Pending Reviews", value: "3", unit: "tasks", change: "-2 from am", icon: Clock, color: "green" },
+      { title: "Compliance Score", value: "98", unit: "%", change: "Excellent", icon: CheckCircle2, color: "orange" },
+    ],
+    "Education": [
+      { title: "Attendance Rate", value: "94", unit: "%", change: "+1.2%", icon: User, color: "blue" },
+      { title: "Classes Taken", value: "6", unit: "/6 today", change: "Complete", icon: Calendar, color: "indigo" },
+      { title: "Curriculum Progress", value: "72", unit: "%", change: "+5% week", icon: TrendingUp, color: "green" },
+      { title: "Student Feedback", value: "4.8", unit: "/5.0", change: "Very High", icon: Star, color: "orange" },
+    ],
+    "Public": [
+      { title: "Civic Reports", value: "3", unit: "approved", change: "+1", icon: CheckCircle2, color: "blue" },
+      { title: "Impact Points", value: "150", unit: "pts", change: "+45 today", icon: Star, color: "indigo" },
+      { title: "Community Rank", value: "12", unit: "/150", change: "Top 10%", icon: TrendingUp, color: "green" },
+      { title: "Next Reward", value: "100", unit: "pts left", change: "Keep reporting", icon: AlertTriangle, color: "orange" },
+    ],
+    "Default": [
+      { title: "Daily Score", value: "92", unit: "/100", change: "+5.2%", icon: TrendingUp, color: "blue" },
+      { title: "Attendance Streak", value: "12", unit: "days", change: "Keep it up!", icon: Calendar, color: "indigo" },
+      { title: "Tasks Completed", value: "8", unit: "today", change: "+2 from yesterday", icon: CheckCircle2, color: "green" },
+      { title: "Tier Status", value: "Gold", unit: "", change: "Top 5% in Dept", icon: AlertTriangle, color: "orange" },
+    ]
+  };
+
+  const getRoleKey = (role: string, employeeType: string) => {
+    if (employeeType === "public") return "Public";
+    if (role?.toLowerCase().includes("inspector") || role?.toLowerCase().includes("police")) return "Police";
+    if (role?.toLowerCase().includes("doc") || role?.toLowerCase().includes("resident") || role?.toLowerCase().includes("asha")) return "Healthcare";
+    if (role?.toLowerCase().includes("teacher") || role?.toLowerCase().includes("professor")) return "Education";
+    return "Default";
+  };
+
+  const currentStats = roleStats[getRoleKey(user?.job_role, user?.employee_type)] || roleStats["Default"];
+  const currentInsight = roleInsights[getRoleKey(user?.job_role, user?.employee_type)] || roleInsights["Default"];
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.name || "Employee"}</h1>
-        <p className="text-gray-500 dark:text-zinc-400">Here's an overview of your performance today.</p>
+        <p className="text-gray-500 dark:text-zinc-400">
+          Role: <span className="text-blue-600 font-semibold">{user?.job_role}</span> • 
+          Dept: <span className="text-blue-600 font-semibold">{user?.department?.name}</span>
+        </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Daily Score" 
-          value="92" 
-          unit="/100" 
-          change="+5.2%" 
-          icon={TrendingUp}
-          color="blue"
-        />
-        <StatCard 
-          title="Attendance Streak" 
-          value="12" 
-          unit="days" 
-          change="Keep it up!" 
-          icon={Calendar}
-          color="indigo"
-        />
-        <StatCard 
-          title="Tasks Completed" 
-          value="8" 
-          unit="today" 
-          change="+2 from yesterday" 
-          icon={CheckCircle2}
-          color="green"
-        />
-        <StatCard 
-          title="Tier Status" 
-          value="Gold" 
-          unit="" 
-          change="Top 5% in Dept" 
-          icon={AlertTriangle}
-          color="orange"
-        />
+        {currentStats.map((stat: any, idx: number) => (
+          <StatCard 
+            key={idx}
+            title={stat.title} 
+            value={stat.value} 
+            unit={stat.unit} 
+            change={stat.change} 
+            icon={stat.icon}
+            color={stat.color}
+          />
+        ))}
       </div>
 
       {/* Main Content Areas */}
@@ -115,12 +146,26 @@ export default function DashboardPage() {
             <div className="space-y-4 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-500">Department</span>
-                <span className="font-medium">PWD Haryana</span>
+                <span className="font-medium">{user?.department?.name || "N/A"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Zone</span>
-                <span className="font-medium">Gurugram-II</span>
+                <span className="font-medium">{user?.zone?.name || "Universal"}</span>
               </div>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20 p-8">
+            <div className="flex items-center gap-2 text-blue-600 mb-2">
+              <Star size={18} />
+              <h2 className="text-sm font-bold uppercase tracking-wider">Role Insight</h2>
+            </div>
+            <h3 className="font-bold text-lg mb-2">{currentInsight.highlight}</h3>
+            <p className="text-sm text-gray-600 dark:text-zinc-400 mb-4">
+              {currentInsight.description}
+            </p>
+            <div className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-bold">
+              {currentInsight.impact}
             </div>
           </div>
         </div>
@@ -128,6 +173,34 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+const roleInsights: any = {
+  "Police": {
+    highlight: "Patrol Multiplier Active",
+    description: "Every 'Beat Patrol Check' submission currently grants a +5 points context bonus. Focus on high-risk areas for maximum impact.",
+    impact: "Priority: Public Safety"
+  },
+  "Healthcare": {
+    highlight: "Health Outreach Bonus",
+    description: "Immunization drives and patient consultations are prioritized. Complete these tasks to earn up to 20 bonus points daily.",
+    impact: "Priority: Public Health"
+  },
+  "Education": {
+    highlight: "Class Consistency",
+    description: "Daily Class Attendance Records contribute directly to your quality index. Maintain consistency for higher rewards eligibility.",
+    impact: "Priority: Education Quality"
+  },
+  "Public": {
+    highlight: "Civic Champion Program",
+    description: "Your reports help clean and fix our city. Every approved report earns you Impact Points that contribute to community rewards.",
+    impact: "Priority: Civic Duty"
+  },
+  "Default": {
+    highlight: "Performance Boost",
+    description: "Your daily tasks contribute to the department's overall efficiency. Maintain high AI quality scores for Platinum tier.",
+    impact: "Overall Productivity"
+  }
+};
 
 function StatCard({ title, value, unit, change, icon: Icon, color }: any) {
   const colors: any = {

@@ -19,6 +19,21 @@ export default function SubmissionsPage() {
   const [afterImg, setAfterImg] = useState<string | null>(null);
   const [taskType, setTaskType] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:8000/api/v1/auth/me", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleSubmit = async () => {
     if (!beforeImg || !afterImg || !taskType) return;
@@ -127,10 +142,43 @@ export default function SubmissionsPage() {
                         className="mt-1 block w-full rounded-xl border-gray-200 bg-gray-50 dark:bg-zinc-900 dark:border-zinc-800 p-4"
                      >
                        <option value="">Select task type...</option>
-                       <option value="pothole_repair">Pothole Repair</option>
-                       <option value="garbage_collection">Garbage Collection</option>
-                       <option value="street_light_fix">Street Light Repair</option>
-                       <option value="drainage_clearing">Drainage Clearing</option>
+                        {user?.employee_type === "public" && (
+                          <>
+                            <option value="Garbage Dump Report">Garbage Dump Report</option>
+                            <option value="Pothole Report">Pothole Report</option>
+                            <option value="Public Infrastructure Feedback">Public Infrastructure Feedback</option>
+                            <option value="Street Light Issue">Street Light Issue</option>
+                          </>
+                        )}
+                        {user?.employee_type !== "public" && user?.department?.name === "Health & Family Welfare" && (
+                          <>
+                            <option value="patient_consultation">Patient Consultation</option>
+                            <option value="immunization_drive">Immunization Drive</option>
+                            <option value="sanitation_check">Hospital Sanitation Check</option>
+                          </>
+                        )}
+                        {user?.employee_type !== "public" && user?.department?.name === "Haryana Police" && (
+                          <>
+                            <option value="beat_patrol">Beat Patrol Check</option>
+                            <option value="traffic_management">Traffic Management</option>
+                            <option value="security_audit">Site Security Audit</option>
+                          </>
+                        )}
+                        {user?.employee_type !== "public" && user?.department?.name === "Higher Education" && (
+                          <>
+                            <option value="attendance_verification">Class Attendance Verification</option>
+                            <option value="exam_invigilation">Exam Invigilation</option>
+                            <option value="lab_session">Lab Session Verification</option>
+                          </>
+                        )}
+                        {user?.employee_type !== "public" && (!user?.department?.name || user?.department?.name === "Public Works Department") && (
+                          <>
+                            <option value="pothole_repair">Pothole Repair</option>
+                            <option value="garbage_collection">Garbage Collection</option>
+                            <option value="street_light_fix">Street Light Repair</option>
+                            <option value="drainage_clearing">Drainage Clearing</option>
+                          </>
+                        )}
                      </select>
                    </label>
 
