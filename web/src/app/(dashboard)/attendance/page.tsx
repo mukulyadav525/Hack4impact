@@ -34,7 +34,7 @@ export default function AttendancePage() {
 
     try {
       const token = localStorage.getItem("token");
-      const govtId = "MOCK-123"; // In reality, get from profile/token
+      const govtId = localStorage.getItem("govtId") || "MOCK-123";
 
       const response = await fetch("http://localhost:8000/api/v1/auth/biometric-checkin", {
         method: "POST",

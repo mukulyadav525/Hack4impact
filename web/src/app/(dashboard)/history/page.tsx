@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { 
   History as HistoryIcon, 
   MapPin, 
@@ -10,14 +11,29 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const mockAttendance = [
-  { id: 1, date: "12 Mar 2024", time: "09:12 AM", status: "Verified", location: "Sector 14, Gurugram" },
-  { id: 2, date: "11 Mar 2024", time: "08:55 AM", status: "Verified", location: "Sector 14, Gurugram" },
-  { id: 3, date: "10 Mar 2024", time: "09:05 AM", status: "Flagged", location: "Unknown Location" },
-  { id: 4, date: "09 Mar 2024", time: "08:50 AM", status: "Verified", location: "Sector 14, Gurugram" },
-];
-
 export default function HistoryPage() {
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:8000/api/v1/attendance/history", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setLogs(data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistory();
+  }, []);
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -42,25 +58,25 @@ export default function HistoryPage() {
           </div>
           
           <div className="divide-y divide-gray-100 dark:divide-zinc-900">
-            {mockAttendance.map((log) => (
+            {logs.map((log: any) => (
               <div key={log.id} className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-all">
                 <div className="flex items-center gap-4">
                   <div className={cn(
                     "w-12 h-12 rounded-2xl flex items-center justify-center",
-                    log.status === "Verified" ? "bg-green-100 text-green-600 dark:bg-green-900/20" : "bg-red-100 text-red-600 dark:bg-red-900/20"
+                    log.status === "present" || log.status === "Verified" ? "bg-green-100 text-green-600 dark:bg-green-900/20" : "bg-red-100 text-red-600 dark:bg-red-900/20"
                   )}>
-                    {log.status === "Verified" ? <CheckCircle2 size={24} /> : <Clock size={24} />}
+                    {log.status === "present" || log.status === "Verified" ? <CheckCircle2 size={24} /> : <Clock size={24} />}
                   </div>
                   <div>
-                    <p className="font-bold text-lg">{log.date}</p>
-                    <p className="text-sm text-gray-500">{log.time}</p>
+                    <p className="font-bold text-lg">{new Date(log.checkin_time || log.submitted_at).toLocaleDateString()}</p>
+                    <p className="text-sm text-gray-500">{new Date(log.checkin_time || log.submitted_at).toLocaleTimeString()}</p>
                   </div>
                 </div>
 
                 <div className="flex flex-col md:items-end gap-1">
                   <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-zinc-300">
                     <MapPin size={14} className="text-gray-400" />
-                    {log.location}
+                    {log.checkin_lat ? `${log.checkin_lat}, ${log.checkin_lon}` : log.location || "Verified Location"}
                   </div>
                   <div className={cn(
                     "text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded",

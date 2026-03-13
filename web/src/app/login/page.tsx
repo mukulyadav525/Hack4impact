@@ -23,6 +23,7 @@ export default function LoginPage() {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("token", data.access_token);
+        localStorage.setItem("govtId", govtId);
         router.push("/dashboard");
       } else {
         setError("Invalid credentials");

@@ -6,11 +6,38 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { useState, useEffect } from "react";
+
 export default function DashboardPage() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:8000/api/v1/auth/me", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  if (loading) return <div>Loading dashboard...</div>;
+
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Welcome back, Mukul</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.name || "Employee"}</h1>
         <p className="text-gray-500 dark:text-zinc-400">Here's an overview of your performance today.</p>
       </div>
 

@@ -18,3 +18,14 @@ class BiometricLogin(BaseModel):
     selfie_base64: str
     latitude: float
     longitude: float
+
+class Employee(BaseModel):
+    id: str
+    govt_id: str
+    name: str
+    employee_type: str
+    job_role: Optional[str] = None
+    is_active: bool
+    
+    class Config:
+        from_attributes = True

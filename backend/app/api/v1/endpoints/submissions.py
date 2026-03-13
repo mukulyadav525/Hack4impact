@@ -22,8 +22,18 @@ def submit_work(
         db, 
         employee_id=current_user.id, 
         task_type=submission_in.task_type, 
-        before_url=submission_in.before_image_url, 
-        after_url=submission_in.after_image_url, 
+        before_image_base64=submission_in.before_image_base64, 
+        after_image_base64=submission_in.after_image_base64, 
         lat=submission_in.latitude, 
         lon=submission_in.longitude
     )
+
+@router.get("/history", response_model=List[schemas.submission.WorkSubmission])
+def read_submission_history(
+    db: Session = Depends(get_db),
+    current_user: models.core.Employee = Depends(deps.get_current_user)
+) -> Any:
+    """
+    Retrieve submission history for the current employee.
+    """
+    return db.query(models.core.WorkSubmission).filter(models.core.WorkSubmission.employee_id == current_user.id).all()

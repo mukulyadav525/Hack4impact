@@ -2,12 +2,24 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from typing import Any
 from app import models, schemas
 from app.core import security
 from app.core.config import settings
 from app.core.database import get_db
 
+from app.api import deps
+
 router = APIRouter()
+
+@router.get("/me", response_model=schemas.auth.Employee)
+def read_users_me(
+    current_user: models.core.Employee = Depends(deps.get_current_user),
+) -> Any:
+    """
+    Get current user.
+    """
+    return current_user
 
 @router.post("/login", response_model=schemas.auth.Token)
 def login_access_token(

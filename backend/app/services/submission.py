@@ -1,4 +1,10 @@
+from app.models.core import WorkSubmission
+from app.services.attendance import AttendanceService
 from app.core.celery_app import celery_app
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+from datetime import datetime
+from decimal import Decimal
 
 class SubmissionService:
     @staticmethod
@@ -6,8 +12,8 @@ class SubmissionService:
         db: Session, 
         employee_id: str, 
         task_type: str, 
-        before_url: str, 
-        after_url: str, 
+        before_image_base64: str, 
+        after_image_base64: str, 
         lat: float, 
         lon: float
     ):
@@ -18,7 +24,10 @@ class SubmissionService:
                 detail="Location verification failed: Work proof must be submitted from within your assigned zone."
             )
 
-        # 2. Create initial submission record
+        # 2. Create initial submission record (Mocking S3 upload)
+        before_url = f"https://mock-s3.bucket/before_{employee_id}_{int(datetime.now().timestamp())}.jpg"
+        after_url = f"https://mock-s3.bucket/after_{employee_id}_{int(datetime.now().timestamp())}.jpg"
+
         submission = WorkSubmission(
             employee_id=employee_id,
             task_type=task_type,

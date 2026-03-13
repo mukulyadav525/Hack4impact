@@ -21,11 +21,44 @@ export default function SubmissionsPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   const handleSubmit = async () => {
+    if (!beforeImg || !afterImg || !taskType) return;
+    
     setStatus("loading");
-    // Get location and submit...
-    setTimeout(() => {
+    
+    try {
+      // Get location
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+
+      const token = localStorage.getItem("token");
+      const govtId = localStorage.getItem("govtId") || "MOCK-123";
+
+      const response = await fetch("http://localhost:8000/api/v1/work/submit", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          govt_id: govtId,
+          task_type: taskType,
+          before_image_base64: beforeImg.split(',')[1],
+          after_image_base64: afterImg.split(',')[1],
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude
+        }),
+      });
+
+      if (response.ok) {
         setStatus("success");
-    }, 2000);
+      } else {
+        setStatus("error");
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus("error");
+    }
   };
 
   return (

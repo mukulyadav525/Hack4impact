@@ -4,8 +4,8 @@ from datetime import datetime
 
 class WorkSubmissionBase(BaseModel):
     task_type: str
-    before_image_url: str
-    after_image_url: str
+    before_image_base64: str
+    after_image_base64: str
     latitude: float
     longitude: float
 
