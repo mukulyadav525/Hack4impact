@@ -76,6 +76,24 @@ export default function EducationDashboard({ user }: { user: any }) {
                       <p className="text-xs text-slate-500 mt-1">Short video with AI student counting</p>
                    </div>
                 </button>
+                <button className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center group">
+                   <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                      <Clipboard size={24} />
+                   </div>
+                   <div>
+                      <h4 className="font-bold text-white text-sm">Digital Register</h4>
+                      <p className="text-xs text-slate-500 mt-1">Mark student presence for today</p>
+                   </div>
+                </button>
+                <button className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-center group">
+                   <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-400 group-hover:scale-110 transition-transform">
+                      <Users size={24} />
+                   </div>
+                   <div>
+                      <h4 className="font-bold text-white text-sm">PTM Log</h4>
+                      <p className="text-xs text-slate-500 mt-1">Record parent-teacher meeting</p>
+                   </div>
+                </button>
              </div>
           </InfoCard>
 

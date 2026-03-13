@@ -104,19 +104,33 @@ class ScoringService:
         elif total_score >= 80: tier = "Gold"
         elif total_score >= 60: tier = "Silver"
         
-        daily_score = DailyScore(
-            employee_id=employee_id,
-            date=datetime.combine(target_date, datetime.min.time()),
-            attendance_score=attendance_score,
-            work_score=work_score,
-            quality_score=quality_score,
-            fraud_penalty=fraud_penalty,
-            total_score=total_score,
-            tier=tier,
-            scoring_version="1.0"
-        )
-        
-        db.add(daily_score)
+        # Check for existing score for this day
+        existing_score = db.query(DailyScore).filter(
+            DailyScore.employee_id == employee_id,
+            func.date(DailyScore.date) == target_date
+        ).first()
+
+        if existing_score:
+            existing_score.attendance_score = attendance_score
+            existing_score.work_score = work_score
+            existing_score.quality_score = quality_score
+            existing_score.fraud_penalty = fraud_penalty
+            existing_score.total_score = total_score
+            existing_score.tier = tier
+            daily_score = existing_score
+        else:
+            daily_score = DailyScore(
+                employee_id=employee_id,
+                date=datetime.combine(target_date, datetime.min.time()),
+                attendance_score=attendance_score,
+                work_score=work_score,
+                quality_score=quality_score,
+                fraud_penalty=fraud_penalty,
+                total_score=total_score,
+                tier=tier,
+                scoring_version="1.0"
+            )
+            db.add(daily_score)
         
         # Update streak
         ScoringService.update_streak(db, employee_id, attendance is not None)

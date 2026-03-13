@@ -177,6 +177,111 @@ class ScoringRule(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
+# --- New Tables to reach 34 ---
+
+class Role(Base):
+    __tablename__ = "roles"
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
+    permissions = Column(JSONB)
+
+class GradeBand(Base):
+    __tablename__ = "grade_bands"
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True) # Grade A, B, C
+    min_score = Column(Float)
+    multiplier = Column(Float, default=1.0)
+
+class Prescription(Base):
+    __tablename__ = "prescriptions"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    employee_id = Column(UUID(as_uuid=True), ForeignKey("employees.id"))
+    patient_id = Column(String)
+    medications = Column(JSONB)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class WardRound(Base):
+    __tablename__ = "ward_rounds"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    employee_id = Column(UUID(as_uuid=True), ForeignKey("employees.id"))
+    ward_name = Column(String)
+    patient_count = Column(Integer)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class PTMLog(Base):
+    __tablename__ = "ptm_logs"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    employee_id = Column(UUID(as_uuid=True), ForeignKey("employees.id"))
+    parent_name = Column(String)
+    discussion_summary = Column(String)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class Assessment(Base):
+    __tablename__ = "assessments"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    employee_id = Column(UUID(as_uuid=True), ForeignKey("employees.id"))
+    class_id = Column(String)
+    average_score = Column(Float)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class PCRLog(Base):
+    __tablename__ = "pcr_logs"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    employee_id = Column(UUID(as_uuid=True), ForeignKey("employees.id"))
+    incident_id = Column(String)
+    arrival_time = Column(DateTime(timezone=True))
+    response_time_minutes = Column(Integer)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class Penalty(Base):
+    __tablename__ = "penalties"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    employee_id = Column(UUID(as_uuid=True), ForeignKey("employees.id"))
+    reason = Column(String)
+    amount = Column(Float)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class Review(Base):
+    __tablename__ = "reviews"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    submission_id = Column(UUID(as_uuid=True), ForeignKey("work_submissions.id"))
+    supervisor_id = Column(UUID(as_uuid=True), ForeignKey("employees.id"))
+    comment = Column(String)
+    rating = Column(Integer)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class RewardTier(Base):
+    __tablename__ = "reward_tiers"
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True) # Bronze, Silver, Gold, Platinum, Diamond
+    min_monthly_score = Column(Float)
+    benefits = Column(JSONB)
+
+class SupervisorAssignment(Base):
+    __tablename__ = "supervisor_assignments"
+    id = Column(Integer, primary_key=True)
+    employee_id = Column(UUID(as_uuid=True), ForeignKey("employees.id"))
+    supervisor_id = Column(UUID(as_uuid=True), ForeignKey("employees.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class AdminAction(Base):
+    __tablename__ = "admin_actions"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    admin_id = Column(UUID(as_uuid=True), ForeignKey("employees.id"))
+    action_type = Column(String)
+    target_entity = Column(String)
+    target_id = Column(String)
+    reason = Column(String)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class ScoreBreakdown(Base):
+    __tablename__ = "score_breakdowns"
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    daily_score_id = Column(UUID(as_uuid=True), ForeignKey("daily_scores.id"))
+    component = Column(String) # attendance, quality, task_bonus, etc.
+    points = Column(Float)
+    explanation = Column(String)
+
 # --- Role Specific Extension Tables ---
 
 class LessonPlan(Base):

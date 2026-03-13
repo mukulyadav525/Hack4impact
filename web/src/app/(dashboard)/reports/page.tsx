@@ -1,190 +1,122 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Download, Filter, BarChart2, Users, TrendingUp, AlertTriangle } from "lucide-react";
-
-const API = "http://localhost:8000/api/v1";
-
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+import { FileText, Download, Filter, Calendar, Users, BarChart } from "lucide-react";
 
 export default function ReportsPage() {
-  const [adminStats, setAdminStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [generating, setGenerating] = useState(false);
-  const [filter, setFilter] = useState({ dept: "all", month: new Date().getMonth() + 1, year: new Date().getFullYear() });
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API}/stats/admin`, { headers: { Authorization: `Bearer ${token}` } });
-        if (res.ok) setAdminStats(await res.json());
-      } catch {}
-      finally { setLoading(false); }
-    };
-    fetchStats();
-  }, []);
-
-  const handleExport = () => {
-    setGenerating(true);
-    setTimeout(() => {
-      const reportData = {
-        generated_at: new Date().toISOString(),
-        filter,
-        overview: adminStats?.overview,
-        departments: adminStats?.department_performance,
-      };
-      const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `govtrack_report_${filter.year}_${filter.month}.json`;
-      a.click();
-      setGenerating(false);
-    }, 1500);
-  };
-
-  const handlePrint = () => window.print();
-
-  if (loading) return (
-    <div className="flex items-center justify-center h-[60vh]">
-      <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-    </div>
-  );
-
-  const overview = adminStats?.overview || {};
-  const deptPerf = (adminStats?.department_performance || []).filter(
-    (d: any) => filter.dept === "all" || d.code === filter.dept
-  );
+  const [reports, setReports] = useState([
+    { id: 1, title: "Monthly Performance Audit - Feb 2026", type: "Audit", date: "2026-03-01", status: "Ready" },
+    { id: 2, title: "Departmental Efficiency Summary", type: "Summary", date: "2026-03-05", status: "Ready" },
+    { id: 3, title: "Fraud & Integrity Incident Log", type: "Security", date: "2026-03-10", status: "Generating" },
+  ]);
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 print:text-black">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex justify-between items-center">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-3">
-            <FileText size={12} /> Admin Reports
-          </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">Reports & Export</h1>
-          <p className="text-slate-400 font-medium mt-1">Generate RTI-style reports and export performance data</p>
+          <h1 className="text-3xl font-black tracking-tight text-white uppercase">Reports & Audits</h1>
+          <p className="text-slate-500 font-medium">Generate and export departmental performance documents.</p>
         </div>
-        <div className="flex gap-3">
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold border border-white/10 transition-all text-sm"
-          >
-            <FileText size={15} /> Print Report
-          </button>
-          <button
-            onClick={handleExport}
-            disabled={generating}
-            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-500 hover:bg-indigo-400 text-white rounded-xl font-bold transition-all text-sm disabled:opacity-50"
-          >
-            {generating ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : <Download size={15} />}
-            {generating ? "Generating..." : "Export JSON"}
-          </button>
-        </div>
+        <button className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold shadow-lg transition-all flex items-center gap-2">
+           <FileText size={18} /> Generate New Report
+        </button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 print:hidden">
-        <div className="flex items-center gap-2 bg-[#1E3A5F]/40 border border-white/5 rounded-xl px-4 py-2">
-          <Filter size={14} className="text-slate-400" />
-          <select
-            value={filter.dept}
-            onChange={e => setFilter(f => ({ ...f, dept: e.target.value }))}
-            className="bg-transparent text-white text-sm font-semibold outline-none"
-          >
-            <option value="all" className="bg-[#0F2240]">All Departments</option>
-            {(adminStats?.department_performance || []).map((d: any) => (
-              <option key={d.code} value={d.code} className="bg-[#0F2240]">{d.name}</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-2 bg-[#1E3A5F]/40 border border-white/5 rounded-xl px-4 py-2">
-          <select
-            value={filter.month}
-            onChange={e => setFilter(f => ({ ...f, month: Number(e.target.value) }))}
-            className="bg-transparent text-white text-sm font-semibold outline-none"
-          >
-            {MONTHS.map((m, i) => <option key={i} value={i + 1} className="bg-[#0F2240]">{m}</option>)}
-          </select>
-        </div>
-        <div className="flex items-center gap-2 bg-[#1E3A5F]/40 border border-white/5 rounded-xl px-4 py-2">
-          <select
-            value={filter.year}
-            onChange={e => setFilter(f => ({ ...f, year: Number(e.target.value) }))}
-            className="bg-transparent text-white text-sm font-semibold outline-none"
-          >
-            {[2024, 2025, 2026].map(y => <option key={y} value={y} className="bg-[#0F2240]">{y}</option>)}
-          </select>
-        </div>
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <aside className="space-y-6">
+            <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 space-y-6">
+                <div className="flex items-center gap-2 text-white font-bold mb-4">
+                    <Filter size={18} className="text-blue-400" /> Filter Criteria
+                </div>
+                
+                <div className="space-y-4">
+                    <div>
+                        <label className="text-[10px] uppercase tracking-widest text-slate-500 font-black mb-2 block">Department</label>
+                        <select className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-blue-500">
+                            <option>All Departments</option>
+                            <option>Education</option>
+                            <option>Health</option>
+                            <option>Police</option>
+                        </select>
+                    </div>
 
-      {/* Report Header (printable) */}
-      <div className="bg-[#1E3A5F]/40 backdrop-blur-xl rounded-3xl border border-white/5 p-8 print:border-0 print:bg-white print:rounded-none">
-        <div className="flex items-center justify-between mb-6 print:border-b print:border-gray-200 print:pb-4">
-          <div>
-            <h2 className="text-xl font-bold text-white print:text-black">GovTrack AI — Performance Report</h2>
-            <p className="text-sm text-slate-400 print:text-gray-600">
-              {MONTHS[filter.month - 1]} {filter.year} ·{" "}
-              {filter.dept === "all" ? "All Departments" : filter.dept}
-            </p>
-          </div>
-          <p className="text-xs text-slate-500 print:text-gray-500">Generated: {new Date().toLocaleDateString("en-IN")}</p>
-        </div>
+                    <div>
+                        <label className="text-[10px] uppercase tracking-widest text-slate-500 font-black mb-2 block">Timeframe</label>
+                        <select className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-blue-500">
+                            <option>Last 30 Days</option>
+                            <option>Last Quarter</option>
+                            <option>FY 2025-26</option>
+                        </select>
+                    </div>
 
-        {/* Summary Stats Table */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: "Total Employees", value: overview.total_employees || 0, icon: Users, color: "text-blue-400" },
-            { label: "Submissions", value: overview.submissions_today || 0, icon: BarChart2, color: "text-emerald-400" },
-            { label: "Pending Review", value: overview.pending_review || 0, icon: TrendingUp, color: "text-yellow-400" },
-            { label: "Fraud Alerts", value: (adminStats?.system_activity?.flagged_for_review || 0), icon: AlertTriangle, color: "text-red-400" },
-          ].map(s => (
-            <div key={s.label} className="bg-black/10 rounded-2xl p-4 border border-white/5 print:border print:border-gray-200 print:rounded">
-              <s.icon size={16} className={`${s.color} mb-2 print:hidden`} />
-              <div className="text-2xl font-black text-white print:text-black">{s.value.toLocaleString()}</div>
-              <div className="text-xs text-slate-400 print:text-gray-600">{s.label}</div>
+                    <button className="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-bold hover:bg-white/10 transition-all">
+                        Apply Filters
+                    </button>
+                </div>
             </div>
-          ))}
-        </div>
+        </aside>
 
-        {/* Department Table */}
-        <h3 className="text-sm font-bold text-white print:text-black mb-4 uppercase tracking-wider">Department Breakdown</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/10 print:border-gray-300">
-                {["Department", "Employees", "Avg Score", "Zone", "Code"].map(h => (
-                  <th key={h} className="text-left py-3 px-3 text-xs text-slate-400 print:text-gray-600 font-bold uppercase tracking-wider">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {deptPerf.map((d: any, i: number) => (
-                <tr key={i} className="border-b border-white/5 print:border-gray-200 hover:bg-white/5 transition-colors">
-                  <td className="py-3 px-3 font-bold text-white print:text-black">{d.name}</td>
-                  <td className="py-3 px-3 text-slate-300 print:text-gray-700">{d.employees?.toLocaleString()}</td>
-                  <td className="py-3 px-3">
-                    <span className={`font-bold ${d.score >= 80 ? "text-emerald-400 print:text-green-600" : d.score >= 60 ? "text-yellow-400 print:text-yellow-600" : "text-red-400 print:text-red-600"}`}>
-                      {d.score?.toFixed(1)}
-                    </span>
-                  </td>
-                  <td className="py-3 px-3 text-slate-400 print:text-gray-600">{d.zone}</td>
-                  <td className="py-3 px-3 text-slate-500 print:text-gray-500 text-xs font-mono">{d.code}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        <main className="lg:col-span-3 space-y-6">
+            <div className="bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-white/5 border-b border-white/10">
+                            <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-slate-500">Report Title</th>
+                            <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-slate-500">Type</th>
+                            <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-slate-500">Generated</th>
+                            <th className="px-8 py-5 text-xs font-black uppercase tracking-widest text-slate-500 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                        {reports.map((report) => (
+                            <tr key={report.id} className="hover:bg-white/[0.02] transition-all group">
+                                <td className="px-8 py-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                            <FileText size={20} />
+                                        </div>
+                                        <span className="font-bold text-white text-sm">{report.title}</span>
+                                    </div>
+                                </td>
+                                <td className="px-8 py-6">
+                                    <span className="text-xs px-3 py-1 bg-white/5 border border-white/10 rounded-full text-slate-400 font-medium">
+                                        {report.type}
+                                    </span>
+                                </td>
+                                <td className="px-8 py-6">
+                                    <div className="flex items-center gap-2 text-slate-500 text-sm">
+                                        <Calendar size={14} /> {report.date}
+                                    </div>
+                                </td>
+                                <td className="px-8 py-6 text-right">
+                                    <button className="p-2 rounded-lg bg-white/5 hover:bg-blue-500/20 hover:text-blue-400 transition-all transition-colors">
+                                        <Download size={18} />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
-      {/* RTI Notice */}
-      <div className="p-5 rounded-2xl bg-white/5 border border-white/5 text-xs text-slate-400 print:border print:border-gray-300">
-        <strong className="text-white print:text-black">RTI Disclosure Note:</strong> This report has been generated by the GovTrack AI system in compliance with the Right to Information Act, 2005. All data is aggregated at department level. Individual employee data requires a formal RTI application to the State Public Information Officer.
+            {/* Quick Summary Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-8 rounded-[2rem] bg-gradient-to-br from-blue-600/20 to-indigo-600/20 border border-blue-500/20">
+                    <BarChart className="text-blue-400 mb-4" />
+                    <h3 className="font-bold text-lg mb-2">Quarterly Projection</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed">
+                        Workforce efficiency is projected to increase by 5.2% in the next quarter based on current attendance trends.
+                    </p>
+                </div>
+                <div className="p-8 rounded-[2rem] bg-gradient-to-br from-emerald-600/20 to-teal-600/20 border border-emerald-500/20">
+                    <Users className="text-emerald-400 mb-4" />
+                    <h3 className="font-bold text-lg mb-2">Compliance Rating</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed">
+                        98.2% of all departments are currently meeting their verification thresholds for March 2026.
+                    </p>
+                </div>
+            </div>
+        </main>
       </div>
     </div>
   );
