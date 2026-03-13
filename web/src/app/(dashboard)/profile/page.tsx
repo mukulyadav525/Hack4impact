@@ -7,7 +7,7 @@ import {
   BadgeCheck, 
   Shield, 
   MapPin,
-  Buildings
+  Building
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -46,7 +46,7 @@ export default function ProfilePage() {
           <div className="bg-white dark:bg-black rounded-3xl border border-gray-100 dark:border-zinc-900 p-8 shadow-sm">
             <h3 className="text-lg font-bold mb-6">Assigned Location</h3>
             <div className="space-y-6">
-               <InfoItem icon={Buildings} label="Department" value="Public Works Department (B&R) - Haryana" />
+               <InfoItem icon={Building} label="Department" value="Public Works Department (B&R) - Haryana" />
                <InfoItem icon={MapPin} label="Zone" value="Gurugram North-II (Municipal Corp)" />
                <div className="aspect-video w-full rounded-2xl bg-gray-100 dark:bg-zinc-900 flex items-center justify-center text-gray-400 text-sm italic">
                   Interactive Zone Boundary Map Placeholder
@@ -90,5 +90,3 @@ function InfoItem({ icon: Icon, label, value }: any) {
     </div>
   );
 }
-
-import { Buildings as BuildingsIcon } from "lucide-react";

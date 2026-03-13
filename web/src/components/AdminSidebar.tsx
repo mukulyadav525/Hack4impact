@@ -11,7 +11,7 @@ import {
   Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const menuItems = [
   { icon: Shield, label: 'System Overview', href: '/admin' },
@@ -24,6 +24,12 @@ const menuItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleSignOut = () => {
+    localStorage.removeItem('token');
+    router.push('/login');
+  };
 
   return (
     <div className="flex h-screen w-72 flex-col bg-slate-950 text-slate-300 border-r border-slate-800 shadow-2xl">
@@ -61,7 +67,10 @@ export function AdminSidebar() {
       </nav>
 
       <div className="p-8 border-t border-slate-900">
-        <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-400 hover:text-red-400 hover:bg-red-400/5 transition-all">
+        <button 
+          onClick={handleSignOut}
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-400 hover:text-red-400 hover:bg-red-400/5 transition-all"
+        >
           <LogOut size={18} />
           Sign Out
         </button>

@@ -10,7 +10,7 @@ import {
   Search
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Overview', href: '/supervisor' },
@@ -22,6 +22,12 @@ const menuItems = [
 
 export function SupervisorSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleSignOut = () => {
+    localStorage.removeItem('token');
+    router.push('/login');
+  };
 
   return (
     <div className="flex h-screen w-72 flex-col bg-white border-r border-gray-100 dark:bg-black dark:border-zinc-900 shadow-sm">
@@ -76,7 +82,10 @@ export function SupervisorSidebar() {
               </div>
            </div>
         </div>
-        <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-all dark:hover:bg-red-900/10">
+        <button 
+          onClick={handleSignOut}
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-all dark:hover:bg-red-900/10"
+        >
           <LogOut size={18} />
           Sign Out
         </button>
