@@ -25,7 +25,7 @@ class AttendanceService:
         # Create a point and check if it's within the zone boundary
         point = f'POINT({lon} {lat})' # Longitude first for PostGIS
         is_within = db.query(func.ST_Within(
-            func.ST_GeomFromText(point, 4326),
+            func.ST_GeomFromText(point, 4324),
             zone.boundary
         )).scalar()
         

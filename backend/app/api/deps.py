@@ -48,3 +48,6 @@ class RoleChecker:
 check_supervisor = RoleChecker(["supervisor", "admin"])
 check_admin = RoleChecker(["admin"])
 check_citizen = RoleChecker(["public", "field_worker", "supervisor", "admin"]) 
+
+# Compatibility alias
+get_current_active_employee = get_current_user

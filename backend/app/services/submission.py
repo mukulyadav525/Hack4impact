@@ -15,7 +15,8 @@ class SubmissionService:
         before_image_base64: str, 
         after_image_base64: str, 
         lat: float, 
-        lon: float
+        lon: float,
+        details: dict = None
     ):
         # 1. Geo-fencing verification
         if not AttendanceService.is_within_zone(db, employee_id, lat, lon):
@@ -37,7 +38,8 @@ class SubmissionService:
             longitude=Decimal(str(lon)),
             status="processing",
             ai_confidence=0.0,
-            ai_quality_score=0
+            ai_quality_score=0,
+            details=details
         )
         db.add(submission)
         db.commit()
@@ -45,11 +47,13 @@ class SubmissionService:
         
         # 3. Enqueue AI verification and Fraud checks
         try:
-            celery_app.send_task("process_submission", args=[str(submission.id)])
+            from app.services.fraud import FraudService
+            FraudService.run_fraud_checks(db, str(submission.id))
+            
+            # (In production we would background this via Celery)
+            # celery_app.send_task("process_submission", args=[str(submission.id)])
         except Exception as e:
-            # Fallback for demo: if Redis/Celery is down, mark as 'review' directly
-            # so the admin can still approve it in the dashboard.
-            print(f"Celery error: {e}. Defaulting to manual review.")
+            print(f"Post-processing error: {e}. Defaulting to manual review.")
             submission.status = "review"
             db.commit()
             

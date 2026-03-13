@@ -10,6 +10,7 @@ const EducationDashboard  = dynamic(() => import("@/components/dashboards/Educat
 const CitizenDashboard    = dynamic(() => import("@/components/dashboards/CitizenDashboard"));
 const AdminDashboard      = dynamic(() => import("@/components/dashboards/AdminDashboard"));
 const DefaultDashboard    = dynamic(() => import("@/components/dashboards/DefaultDashboard"));
+const SupervisorDashboard = dynamic(() => import("@/components/dashboards/SupervisorDashboard"));
 
 function getDashboardType(user: any): string {
   const type = user?.employee_type?.toLowerCase();
@@ -57,6 +58,7 @@ export default function DashboardPage() {
     case "education":   return <EducationDashboard user={user} />;
     case "citizen":     return <CitizenDashboard user={user} />;
     case "admin":       return <AdminDashboard user={user} />;
+    case "supervisor":  return <SupervisorDashboard user={user} />;
     default:            return <DefaultDashboard user={user} />;
   }
 }

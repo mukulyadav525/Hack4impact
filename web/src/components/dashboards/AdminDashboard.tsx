@@ -5,7 +5,7 @@
 import { useState, useEffect } from "react";
 import {
   Users, Building2, MapPin, BarChart2, Search, Plus, Edit2, Trash2,
-  CheckCircle2, Clock, ShieldCheck, TrendingUp, AlertTriangle
+  CheckCircle2, Clock, ShieldCheck, TrendingUp, AlertTriangle, Settings2, Activity
 } from "lucide-react";
 import { StatCard, InfoCard } from "./shared";
 import Link from "next/link";
@@ -17,13 +17,19 @@ function authHeaders() {
 }
 
 export default function AdminDashboard({ user }: { user: any }) {
-  const [tab, setTab] = useState<"overview" | "users" | "departments" | "zones" | "submissions">("overview");
+  const [tab, setTab] = useState<"overview" | "users" | "departments" | "zones" | "submissions" | "scoring" | "grievances">("overview");
   const [employees, setEmployees] = useState<any[]>([]);
   const [zones, setZones] = useState<any[]>([]);
   const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
+  const [scoringRules, setScoringRules] = useState<any[]>([]);
+  const [grievances, setGrievances] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [editUser, setEditUser] = useState<any>(null);
+  const [editRule, setEditRule] = useState<any>(null);
+  const [editGrievance, setEditGrievance] = useState<any>(null);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [loadingRules, setLoadingRules] = useState(false);
+  const [loadingGrievances, setLoadingGrievances] = useState(false);
   const [stats, setStats] = useState<any>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [newUser, setNewUser] = useState({
@@ -33,7 +39,7 @@ export default function AdminDashboard({ user }: { user: any }) {
   const fetchEmployees = async () => {
     setLoadingUsers(true);
     try {
-      const res = await fetch(`${API}/employees`, { headers: authHeaders() });
+      const res = await fetch(`${API}/employees/`, { headers: authHeaders() });
       if (res.ok) setEmployees(await res.json());
     } catch {}
     setLoadingUsers(false);
@@ -41,23 +47,41 @@ export default function AdminDashboard({ user }: { user: any }) {
 
   const fetchZones = async () => {
     try {
-      const res = await fetch(`${API}/zones`, { headers: authHeaders() });
+      const res = await fetch(`${API}/zones/`, { headers: authHeaders() });
       if (res.ok) setZones(await res.json());
     } catch {}
   };
 
   const fetchAllSubmissions = async () => {
     try {
-      const res = await fetch(`${API}/submissions`, { headers: authHeaders() });
+      const res = await fetch(`${API}/submissions/list/`, { headers: authHeaders() });
       if (res.ok) setAllSubmissions(await res.json());
     } catch {}
   };
 
   const fetchStats = async () => {
     try {
-      const res = await fetch(`${API}/stats/admin`, { headers: authHeaders() });
+      const res = await fetch(`${API}/stats/admin/`, { headers: authHeaders() });
       if (res.ok) setStats(await res.json());
     } catch {}
+  };
+  
+  const fetchScoringRules = async () => {
+    setLoadingRules(true);
+    try {
+      const res = await fetch(`${API}/scoring/rules/`, { headers: authHeaders() });
+      if (res.ok) setScoringRules(await res.json());
+    } catch {}
+    setLoadingRules(false);
+  };
+
+  const fetchGrievances = async () => {
+    setLoadingGrievances(true);
+    try {
+      const res = await fetch(`${API}/grievances/`, { headers: authHeaders() });
+      if (res.ok) setGrievances(await res.json());
+    } catch {}
+    setLoadingGrievances(false);
   };
 
   useEffect(() => {
@@ -65,8 +89,39 @@ export default function AdminDashboard({ user }: { user: any }) {
     fetchZones();
     fetchAllSubmissions();
     fetchStats();
+    fetchScoringRules();
+    fetchGrievances();
   }, []);
 
+  const handleSaveRule = async () => {
+    if (!editRule) return;
+    try {
+      const res = await fetch(`${API}/scoring/rules/${editRule.id}`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify(editRule),
+      });
+      if (res.ok) {
+        setEditRule(null);
+        fetchScoringRules();
+      }
+    } catch {}
+  };
+
+  const handleResolveGrievance = async (resolution: string, status: string = "resolved") => {
+    if (!editGrievance) return;
+    try {
+      const res = await fetch(`${API}/grievances/${editGrievance.id}`, {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({ resolution, status }),
+      });
+      if (res.ok) {
+        setEditGrievance(null);
+        fetchGrievances();
+      }
+    } catch {}
+  };
 
   const handleSaveUser = async () => {
     if (!editUser) return;
@@ -127,7 +182,7 @@ export default function AdminDashboard({ user }: { user: any }) {
 
       {/* Tabs */}
       <div className="flex gap-2 p-1 bg-black/20 rounded-2xl border border-white/5 w-fit overflow-x-auto max-w-full">
-        {(["overview", "users", "departments", "zones", "submissions"] as const).map((t) => (
+        {(["overview", "users", "departments", "zones", "submissions", "scoring", "grievances"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -146,6 +201,12 @@ export default function AdminDashboard({ user }: { user: any }) {
             <StatCard onClick={() => setTab("departments")} title="Departments" value={stats?.overview.departments.toString() || "..."} unit="operational" change="View Details" icon={Building2} color="indigo" />
             <StatCard onClick={() => setTab("zones")} title="Zones" value={stats?.overview.zones.toString() || zones.length.toString() || "..."} unit="mapped" change="Active Regions" icon={MapPin} color="green" />
             <StatCard onClick={() => setTab("submissions")} title="Submissions Today" value={stats?.overview.submissions_today.toString() || "0"} unit="reports" change={`${stats?.overview.pending_review || 0} pending`} icon={BarChart2} color="orange" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <StatCard title="Lesson Plans" value={stats?.overview.total_lesson_plans?.toString() || "0"} unit="verified" change="Across Education" icon={TrendingUp} color="emerald" />
+            <StatCard title="OPD Sessions" value={stats?.overview.total_opd_logs?.toString() || "0"} unit="logged" change="Healthcare Activity" icon={Activity} color="rose" />
+            <StatCard title="Patrol Logs" value={stats?.overview.total_patrol_logs?.toString() || "0"} unit="check-ins" change="Police Presence" icon={ShieldCheck} color="indigo" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -427,6 +488,282 @@ export default function AdminDashboard({ user }: { user: any }) {
               </div>
             ))}
           </div>
+        </InfoCard>
+      )}
+
+      {/* Scoring Rules Tab */}
+      {tab === "scoring" && (
+        <InfoCard title="Reward & Scoring Configuration">
+          <div className="space-y-4">
+            {loadingRules ? (
+              <div className="flex justify-center py-10"><div className="w-6 h-6 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" /></div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4">
+                {scoringRules.map((rule) => (
+                  <div key={rule.id} className="p-6 rounded-2xl bg-black/20 border border-white/5 space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="text-lg font-bold text-white uppercase tracking-tight">{rule.dept_code}</h4>
+                        <p className="text-xs text-slate-500 font-medium">Department Scoring Weights</p>
+                      </div>
+                      <button 
+                        onClick={() => setEditRule({ ...rule })}
+                        className="p-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-all border border-blue-500/20"
+                      >
+                        <Settings2 size={16} />
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+                        <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Attendance</p>
+                        <p className="text-xl font-black text-white">{Math.round(rule.attendance_weight * 100)}%</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+                        <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Quality</p>
+                        <p className="text-xl font-black text-white">{Math.round(rule.quality_weight * 100)}%</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+                        <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Quantity</p>
+                        <p className="text-xl font-black text-white">{Math.round(rule.count_weight * 100)}%</p>
+                      </div>
+                    </div>
+
+                    {rule.context_bonus_formula && rule.context_bonus_formula.length > 0 && (
+                      <div className="space-y-2 pt-2 border-t border-white/5">
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Context Bonuses</p>
+                        <div className="flex flex-wrap gap-2">
+                          {rule.context_bonus_formula.map((f: any, idx: number) => (
+                            <div key={idx} className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+                              {f.task_type}: +{f.points} pts (Max {f.max})
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Edit Rule Modal */}
+          {editRule && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-[#0F2240] border border-white/10 rounded-3xl p-8 w-full max-w-lg shadow-2xl">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h3 className="text-2xl font-black text-white uppercase">{editRule.dept_code}</h3>
+                    <p className="text-sm text-slate-400">Configure point calculation rules</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                    <Settings2 size={24} />
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Attendance Wt</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="1"
+                        value={editRule.attendance_weight}
+                        onChange={(e) => setEditRule({ ...editRule, attendance_weight: parseFloat(e.target.value) })}
+                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Quality Wt</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="1"
+                        value={editRule.quality_weight}
+                        onChange={(e) => setEditRule({ ...editRule, quality_weight: parseFloat(e.target.value) })}
+                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 font-bold uppercase block mb-1">Quantity Wt</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="1"
+                        value={editRule.count_weight}
+                        onChange={(e) => setEditRule({ ...editRule, count_weight: parseFloat(e.target.value) })}
+                        className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white font-bold focus:border-blue-500 outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
+                    <p className="text-xs font-bold text-blue-400 mb-4 flex items-center gap-2">
+                      <TrendingUp size={14} /> Context-Based Bonus Formulas
+                    </p>
+                    <div className="space-y-3">
+                      {(editRule.context_bonus_formula || []).map((f: any, idx: number) => (
+                        <div key={idx} className="flex gap-2 items-end">
+                          <div className="flex-1">
+                            <label className="text-[9px] text-slate-500 font-bold uppercase mb-1">Task Type</label>
+                            <input
+                              value={f.task_type}
+                              onChange={(e) => {
+                                const newFormula = [...editRule.context_bonus_formula];
+                                newFormula[idx].task_type = e.target.value;
+                                setEditRule({ ...editRule, context_bonus_formula: newFormula });
+                              }}
+                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/5 text-white text-xs outline-none"
+                            />
+                          </div>
+                          <div className="w-16">
+                            <label className="text-[9px] text-slate-500 font-bold uppercase mb-1">Pts</label>
+                            <input
+                              type="number"
+                              value={f.points}
+                              onChange={(e) => {
+                                const newFormula = [...editRule.context_bonus_formula];
+                                newFormula[idx].points = parseInt(e.target.value);
+                                setEditRule({ ...editRule, context_bonus_formula: newFormula });
+                              }}
+                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/5 text-white text-xs outline-none"
+                            />
+                          </div>
+                          <div className="w-16">
+                            <label className="text-[9px] text-slate-500 font-bold uppercase mb-1">Max</label>
+                            <input
+                              type="number"
+                              value={f.max}
+                              onChange={(e) => {
+                                const newFormula = [...editRule.context_bonus_formula];
+                                newFormula[idx].max = parseInt(e.target.value);
+                                setEditRule({ ...editRule, context_bonus_formula: newFormula });
+                              }}
+                              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/5 text-white text-xs outline-none"
+                            />
+                          </div>
+                          <button 
+                            onClick={() => {
+                              const newFormula = editRule.context_bonus_formula.filter((_:any, i:number) => i !== idx);
+                              setEditRule({ ...editRule, context_bonus_formula: newFormula });
+                            }}
+                            className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      <button 
+                        onClick={() => {
+                          const newFormula = [...(editRule.context_bonus_formula || []), { task_type: "", points: 0, max: 0 }];
+                          setEditRule({ ...editRule, context_bonus_formula: newFormula });
+                        }}
+                        className="w-full py-2 rounded-lg border border-dashed border-white/10 text-slate-400 hover:text-white hover:border-white/20 text-xs font-bold transition-all mt-2"
+                      >
+                        + Add Bonus Formula
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 mt-8 pt-6 border-t border-white/5">
+                  <button onClick={() => setEditRule(null)} className="flex-1 py-4 rounded-2xl border border-white/10 text-slate-400 hover:text-white font-bold text-sm transition-all">Discard</button>
+                  <button onClick={handleSaveRule} className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-xl shadow-blue-900/20 transition-all">Save Formula</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </InfoCard>
+      )}
+      {/* Grievances Tab */}
+      {tab === "grievances" && (
+        <InfoCard title="Employee Grievance & Disputes">
+          <div className="space-y-4">
+            {loadingGrievances ? (
+              <div className="flex justify-center py-10"><div className="w-6 h-6 border-2 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" /></div>
+            ) : (
+              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                {grievances.length === 0 && <p className="text-slate-400 text-center py-8 text-sm">No grievances reported.</p>}
+                {grievances.map((g: any) => (
+                  <div key={g.id} className="p-5 rounded-2xl bg-black/20 border border-white/5 space-y-3 hover:bg-black/30 transition-colors">
+                    <div className="flex justify-between items-start">
+                      <div>
+                         <div className="flex items-center gap-2 mb-1">
+                           <span className={`text-[9px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-md ${g.status === 'open' ? 'bg-orange-500/20 text-orange-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
+                             {g.status}
+                           </span>
+                           <span className="text-xs text-slate-500 font-bold">{g.category}</span>
+                         </div>
+                         <h4 className="font-bold text-white text-sm">{g.description}</h4>
+                         <p className="text-[10px] text-slate-500 mt-1">
+                           Submitted by ID: {g.employee_id.slice(0, 8)}... · {new Date(g.created_at).toLocaleString()}
+                         </p>
+                      </div>
+                      <button 
+                        onClick={() => setEditGrievance(g)}
+                        className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600 text-blue-400 text-xs font-bold rounded-lg transition-all border border-blue-500/20"
+                      >
+                        Action
+                      </button>
+                    </div>
+                    {g.resolution && (
+                      <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                        <p className="text-[10px] font-black text-emerald-400 uppercase mb-1">Resolution:</p>
+                        <p className="text-xs text-slate-300">{g.resolution}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Resolve Modal */}
+          {editGrievance && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+               <div className="bg-[#0F2240] border border-white/10 rounded-[2rem] p-8 w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-200">
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h3 className="text-xl font-bold text-white">Resolve Grievance</h3>
+                      <p className="text-xs text-slate-400 mt-1">ID: {editGrievance.id}</p>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-400">
+                      <AlertTriangle size={20} />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Employee Issue</p>
+                      <p className="text-sm text-white italic">"{editGrievance.description}"</p>
+                    </div>
+
+                    <div>
+                      <label className="text-xs text-slate-400 font-bold uppercase tracking-wider block mb-2">Resolution Note</label>
+                      <textarea 
+                        className="w-full h-32 px-4 py-3 rounded-2xl bg-black/20 border border-white/10 text-white text-sm focus:border-blue-500/50 outline-none resize-none"
+                        placeholder="Detail the resolution or why it was rejected..."
+                        onChange={(e) => setEditGrievance({...editGrievance, resolution: e.target.value})}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 mt-8">
+                    <button onClick={() => setEditGrievance(null)} className="flex-1 py-3 rounded-xl border border-white/10 text-slate-400 hover:text-white font-bold text-sm transition-all">Cancel</button>
+                    <button 
+                      onClick={() => handleResolveGrievance(editGrievance.resolution || "No note provided")}
+                      className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-900/20 transition-all"
+                    >
+                      Mark Resolved
+                    </button>
+                  </div>
+               </div>
+            </div>
+          )}
         </InfoCard>
       )}
     </div>

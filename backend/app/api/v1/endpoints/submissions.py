@@ -25,7 +25,8 @@ def submit_work(
         before_image_base64=submission_in.before_image_base64, 
         after_image_base64=submission_in.after_image_base64, 
         lat=submission_in.latitude, 
-        lon=submission_in.longitude
+        lon=submission_in.longitude,
+        details=submission_in.details
     )
 
 @router.get("/history", response_model=List[schemas.submission.WorkSubmission])
@@ -61,7 +62,7 @@ def review_submission(
     """
     return SubmissionService.review_submission(db, submission_id, approved)
 
-@router.get("/", response_model=List[schemas.submission.WorkSubmission])
+@router.get("/list/", response_model=List[schemas.submission.WorkSubmission])
 def read_all_submissions(
     db: Session = Depends(get_db),
     admin: models.core.Employee = Depends(deps.check_admin)

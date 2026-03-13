@@ -5,7 +5,7 @@ from datetime import date
 from typing import Any, Dict
 
 from app.api import deps
-from app.models.core import Employee, Department, Zone, WorkSubmission, DailyScore
+from app.models.core import Employee, Department, Zone, WorkSubmission, DailyScore, MonthlyScore, LessonPlan, OPDLog, PatrolLog, Grievance, FraudFlag
 
 router = APIRouter()
 
@@ -67,7 +67,10 @@ def get_admin_stats(
             "departments": total_departments,
             "zones": total_zones,
             "submissions_today": submissions_today,
-            "pending_review": pending_review
+            "pending_review": pending_review,
+            "total_lesson_plans": db.query(LessonPlan).count(),
+            "total_opd_logs": db.query(OPDLog).count(),
+            "total_patrol_logs": db.query(PatrolLog).count()
         },
         "system_activity": {
             "new_citizen_reports": new_citizen_reports,
@@ -161,6 +164,39 @@ def get_user_stats(
         "next_tier": next_tier,
         "points_to_next": round(points_to_next),
         "progress_percent": round(progress),
-        "rewards_claimed": db.query(DailyScore).filter(DailyScore.employee_id == current_user.id, DailyScore.total_score >= 90).count(), # Example: count days with >= 90
-        "eligible_rewards": role_rewards
+        "streak_count": current_user.streak_count or 0,
+        "reports_submitted": db.query(WorkSubmission).filter(
+            WorkSubmission.employee_id == current_user.id, WorkSubmission.status == "approved"
+        ).count(),
+        "rewards_claimed": db.query(DailyScore).filter(
+            DailyScore.employee_id == current_user.id, DailyScore.total_score >= 90
+        ).count(),
+        "eligible_rewards": role_rewards,
+        "daily_score_history": [
+            {
+                "date": ds.date.strftime("%Y-%m-%d") if ds.date else None,
+                "total_score": round(float(ds.total_score or 0), 1),
+                "attendance_score": round(float(ds.attendance_score or 0), 1),
+                "work_score": round(float(ds.work_score or 0), 1),
+                "quality_score": round(float(ds.quality_score or 0), 1),
+                "fraud_penalty": round(float(ds.fraud_penalty or 0), 1),
+                "tier": ds.tier or "Bronze"
+            }
+            for ds in db.query(DailyScore).filter(
+                DailyScore.employee_id == current_user.id
+            ).order_by(DailyScore.date.desc()).limit(30).all()
+        ],
+        "monthly_summary": [
+            {
+                "month": ms.month,
+                "year": ms.year,
+                "total_score": round(float(ms.total_score or 0), 1),
+                "avg_quality": round(float(ms.avg_quality_score or 0), 1),
+                "fraud_flags": ms.fraud_flag_count or 0,
+                "reward_eligible": ms.reward_eligible
+            }
+            for ms in db.query(MonthlyScore).filter(
+                MonthlyScore.employee_id == current_user.id
+            ).order_by(MonthlyScore.year.desc(), MonthlyScore.month.desc()).limit(6).all()
+        ]
     }

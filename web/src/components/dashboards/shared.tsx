@@ -10,8 +10,10 @@ export function StatCard({ title, value, unit, change, icon: Icon, color, onClic
     blue: "text-blue-400 bg-blue-500/10 border-blue-500/20",
     indigo: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
     green: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+    emerald: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
     orange: "text-orange-400 bg-orange-500/10 border-orange-500/20",
     violet: "text-violet-400 bg-violet-500/10 border-violet-500/20",
+    rose: "text-rose-400 bg-rose-500/10 border-rose-500/20",
   };
   return (
     <div 

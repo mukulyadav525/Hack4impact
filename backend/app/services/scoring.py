@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from app.models.core import Attendance, WorkSubmission, DailyScore, Employee, MonthlyScore
+from app.models.core import Attendance, WorkSubmission, DailyScore, Employee, MonthlyScore, ScoringRule, ClimateAdjustment
+from app.services.fraud import FraudService
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
@@ -8,8 +9,8 @@ class ScoringService:
     @staticmethod
     def calculate_daily_score(db: Session, employee_id: str, target_date: date):
         """
-        Calculates the score for a specific day.
-        Score = (Attendance * 30%) + (Work Quality * 40%) + (Count * 30%) - Fraud Penalty + Context Bonus
+        Calculates the score for a specific day using dynamic rules,
+        incorporating fraud penalties and climate adjustments.
         """
         # Fetch Employee and Department
         employee = db.query(Employee).filter(Employee.id == employee_id).first()
@@ -18,15 +19,34 @@ class ScoringService:
         
         dept_code = employee.department.dept_code if employee.department else "DEFAULT"
 
-        # 1. Attendance Score (100 if present, 0 if absent)
+        # Fetch dynamic scoring rule
+        rule = db.query(ScoringRule).filter(ScoringRule.dept_code == dept_code).first()
+        if not rule:
+            # Default fallback weights if no rule exists
+            rule = ScoringRule(
+                attendance_weight=0.3,
+                quality_weight=0.4,
+                count_weight=0.3,
+                context_bonus_formula=[]
+            )
+        
+        # Fetch Climate Adjustments for this zone/date
+        climate = db.query(ClimateAdjustment).filter(
+            ClimateAdjustment.region_id == employee.zone_id,
+            ClimateAdjustment.start_date <= target_date,
+            ClimateAdjustment.end_date >= target_date
+        ).first()
+        climate_multiplier = float(climate.weight_multiplier) if climate else 1.0
+
+        # 1. Attendance Score
         attendance = db.query(Attendance).filter(
             Attendance.employee_id == employee_id,
             func.date(Attendance.created_at) == target_date
         ).first()
         
-        attendance_score = 100 if attendance else 0
+        attendance_score = 100.0 if attendance else 0.0
         if dept_code == "PUBLIC":
-            attendance_score = 100 # Citizens don't have mandatory check-ins for now
+            attendance_score = 100.0
         
         # 2. Work Quality & Count
         submissions = db.query(WorkSubmission).filter(
@@ -35,38 +55,30 @@ class ScoringService:
             WorkSubmission.status == "approved"
         ).all()
         
-        context_bonus = 0
-        if not submissions:
-            work_score = 0
-            quality_score = 0
-        else:
-            # Count score
-            work_score = 100 
+        context_bonus = 0.0
+        work_score = 0.0
+        quality_score = 0.0
+        
+        if submissions:
+            work_score = 100.0
             
             # Quality score: Avg of AI quality scores (0-10 scale -> 0-100)
-            avg_quality = sum(s.ai_quality_score for s in submissions) / len(submissions)
-            quality_score = avg_quality * 10
+            avg_quality = sum((s.ai_quality_score or 0) for s in submissions) / len(submissions)
+            quality_score = float(avg_quality) * 10.0
 
-            # --- Context-Aware Bonuses ---
-            if dept_code == "POL-HR":
-                # Police focus on patrol coverage
-                patrol_count = sum(1 for s in submissions if s.task_type == "Beat Patrol Check")
-                context_bonus = min(20, patrol_count * 5)
-            elif dept_code == "HFW-HR":
-                # Health focus on impact tasks
-                health_tasks = sum(1 for s in submissions if s.task_type in ["Immunization Drive", "Patient Consultation"])
-                context_bonus = min(20, health_tasks * 7)
-            elif dept_code == "EDU-HR":
-                # Education focus on attendance verification
-                edu_tasks = sum(1 for s in submissions if s.task_type == "Class Attendance Record")
-                context_bonus = min(20, edu_tasks * 5)
-            elif dept_code == "PUBLIC":
-                # Citizens get bonus for civic reports
-                civic_tasks = sum(1 for s in submissions if s.task_type in ["Garbage Dump Report", "Pothole Report", "Public Infrastructure Feedback"])
-                context_bonus = min(30, civic_tasks * 10) # Higher incentive for public participation
+            # --- Dynamic Context-Aware Bonuses ---
+            if rule.context_bonus_formula:
+                for formula in rule.context_bonus_formula:
+                    task_type = formula.get("task_type")
+                    points = float(formula.get("points", 0))
+                    max_bonus = float(formula.get("max", 20))
+                    
+                    task_count = sum(1 for s in submissions if s.task_type == task_type)
+                    bonus = min(max_bonus, task_count * points)
+                    context_bonus += bonus
             
         # 3. Fraud Penalty
-        fraud_penalty = 0
+        fraud_penalty = 0.0
         fraud_count = db.query(WorkSubmission).filter(
             WorkSubmission.employee_id == employee_id,
             func.date(WorkSubmission.created_at) == target_date,
@@ -74,11 +86,17 @@ class ScoringService:
         ).count()
         
         if fraud_count > 0:
-            fraud_penalty = 50 * fraud_count
+            fraud_penalty = float(50 * fraud_count)
             
-        # Final weighted score
-        total_score = (attendance_score * 0.3) + (quality_score * 0.4) + (work_score * 0.3) + context_bonus - fraud_penalty
-        total_score = max(0, min(100, total_score))
+        # Final weighted score with climate multiplier
+        raw_score = (
+            (attendance_score * rule.attendance_weight) + 
+            (quality_score * rule.quality_weight) + 
+            (work_score * rule.count_weight) + 
+            context_bonus - 
+            fraud_penalty
+        ) * climate_multiplier
+        total_score = float(max(0.0, min(100.0, raw_score)))
         
         # Determine tier
         tier = "Bronze"
@@ -89,10 +107,10 @@ class ScoringService:
         daily_score = DailyScore(
             employee_id=employee_id,
             date=datetime.combine(target_date, datetime.min.time()),
-            attendance_score=float(attendance_score),
-            work_score=float(work_score),
-            quality_score=float(quality_score),
-            fraud_penalty=float(fraud_penalty),
+            attendance_score=attendance_score,
+            work_score=work_score,
+            quality_score=quality_score,
+            fraud_penalty=fraud_penalty,
             total_score=total_score,
             tier=tier,
             scoring_version="1.0"

@@ -1,12 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
  
-"use client";
-
+import { useState, useEffect } from "react";
 import { MapPin, Star, TrendingUp, Award, CheckCircle2, Camera, AlertCircle } from "lucide-react";
 import { StatCard, ActivityItem, InfoCard } from "./shared";
 import Link from "next/link";
 
+const API = "http://localhost:8000/api/v1";
+
 export default function CitizenDashboard({ user }: { user: any }) {
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API}/stats/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) setStats(await res.json());
+      } catch {}
+      finally { setLoading(false); }
+    };
+    fetchStats();
+  }, []);
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -25,10 +42,10 @@ export default function CitizenDashboard({ user }: { user: any }) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard title="Civic Reports" value="3" unit="approved" change="+1 this week" icon={CheckCircle2} color="blue" />
-        <StatCard title="Impact Points" value="150" unit="pts" change="+45 today" icon={Star} color="orange" />
+        <StatCard title="Civic Reports" value={stats?.reports_submitted?.toString() || "3"} unit="approved" change="+1 this week" icon={CheckCircle2} color="blue" />
+        <StatCard title="Impact Points" value={stats?.total_points?.toString() || "150"} unit="pts" change="+45 today" icon={Star} color="orange" />
         <StatCard title="Community Rank" value="12" unit="/150" change="Top 10%" icon={TrendingUp} color="green" />
-        <StatCard title="Next Reward" value="100" unit="pts needed" change="Keep reporting!" icon={Award} color="indigo" />
+        <StatCard title="Next Reward" value={stats?.points_to_next?.toString() || "100"} unit="pts needed" change="Keep reporting!" icon={Award} color="indigo" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -71,13 +88,13 @@ export default function CitizenDashboard({ user }: { user: any }) {
             <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
             <Award size={28} className="mb-3 relative z-10" />
             <h3 className="font-bold text-lg mb-1">Impact Points</h3>
-            <div className="text-4xl font-black mb-1">150<span className="text-xl text-orange-200"> pts</span></div>
-            <p className="text-orange-100 text-sm">100 more for Digital Certificate!</p>
+            <div className="text-4xl font-black mb-1">{stats?.total_points || 150}<span className="text-xl text-orange-200"> pts</span></div>
+            <p className="text-orange-100 text-sm">{stats?.points_to_next || 100} more for Digital Certificate!</p>
             {/* Progress bar */}
             <div className="mt-4 h-2 bg-white/20 rounded-full overflow-hidden">
-              <div className="h-full bg-white rounded-full" style={{ width: '60%' }} />
+              <div className="h-full bg-white rounded-full" style={{ width: `${stats?.progress_percent || 60}%` }} />
             </div>
-            <p className="text-xs text-orange-200 mt-1">60% to next reward</p>
+            <p className="text-xs text-orange-200 mt-1">{stats?.progress_percent || 60}% to next reward</p>
           </div>
 
           <InfoCard title="Reward Milestones">

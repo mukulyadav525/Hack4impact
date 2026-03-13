@@ -9,7 +9,8 @@ import {
   Loader2, 
   CheckCircle2, 
   Info,
-  Layers
+  Layers,
+  ArrowRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,7 @@ export default function SubmissionsPage() {
   const [beforeImg, setBeforeImg] = useState<string | null>(null);
   const [afterImg, setAfterImg] = useState<string | null>(null);
   const [taskType, setTaskType] = useState("");
+  const [details, setDetails] = useState<any>({});
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [user, setUser] = useState<any>(null);
 
@@ -61,7 +63,8 @@ export default function SubmissionsPage() {
           before_image_base64: beforeImg.split(',')[1],
           after_image_base64: afterImg.split(',')[1],
           latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude
+          longitude: pos.coords.longitude,
+          details: details
         }),
       });
 
@@ -174,7 +177,6 @@ export default function SubmissionsPage() {
                               <option value="Street Light Issue">Street Light Issue</option>
                             </>
                           )}
-                          {/* ... other options same ... */}
                           {user?.employee_type !== "public" && user?.department?.name === "Health & Family Welfare" && (
                             <>
                               <option value="patient_consultation">Patient Consultation</option>
@@ -207,6 +209,111 @@ export default function SubmissionsPage() {
                        </select>
                      </label>
                    </div>
+
+                   {/* Role-Specific Detail Fields */}
+                   {taskType && (
+                      <div className="bg-blue-50/50 dark:bg-blue-900/10 p-6 rounded-3xl border border-blue-100/50 dark:border-blue-900/30 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Info size={16} className="text-blue-500" />
+                          <span className="text-sm font-bold text-blue-900 dark:text-blue-300">Role-Specific Details</span>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {user?.department?.name === "Higher Education" && (
+                            <>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Class Code</label>
+                                <input 
+                                  type="text" 
+                                  placeholder="e.g. X-A" 
+                                  className="w-full bg-white dark:bg-zinc-900 rounded-xl border-2 border-transparent focus:border-blue-500 p-3 text-sm"
+                                  onChange={(e) => setDetails({ ...details, class_code: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Student Count</label>
+                                <input 
+                                  type="number" 
+                                  placeholder="0" 
+                                  className="w-full bg-white dark:bg-zinc-900 rounded-xl border-2 border-transparent focus:border-blue-500 p-3 text-sm"
+                                  onChange={(e) => setDetails({ ...details, student_count: e.target.value })}
+                                />
+                              </div>
+                            </>
+                          )}
+
+                          {user?.department?.name === "Haryana Police" && (
+                            <>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Beat ID</label>
+                                <input 
+                                  type="text" 
+                                  placeholder="e.g. BT-99" 
+                                  className="w-full bg-white dark:bg-zinc-900 rounded-xl border-2 border-transparent focus:border-blue-500 p-3 text-sm"
+                                  onChange={(e) => setDetails({ ...details, beat_id: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Shift Status</label>
+                                <select 
+                                  className="w-full bg-white dark:bg-zinc-900 rounded-xl border-2 border-transparent focus:border-blue-500 p-3 text-sm"
+                                  onChange={(e) => setDetails({ ...details, patrol_status: e.target.value })}
+                                >
+                                  <option value="Routine">Routine</option>
+                                  <option value="Emergency">Emergency</option>
+                                  <option value="Special">Special Mission</option>
+                                </select>
+                              </div>
+                            </>
+                          )}
+
+                          {user?.department?.name === "Health & Family Welfare" && (
+                            <>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Patient ID/Room</label>
+                                <input 
+                                  type="text" 
+                                  placeholder="e.g. OPD-1" 
+                                  className="w-full bg-white dark:bg-zinc-900 rounded-xl border-2 border-transparent focus:border-blue-500 p-3 text-sm"
+                                  onChange={(e) => setDetails({ ...details, location_ref: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Cases Handled</label>
+                                <input 
+                                  type="number" 
+                                  className="w-full bg-white dark:bg-zinc-900 rounded-xl border-2 border-transparent focus:border-blue-500 p-3 text-sm"
+                                  onChange={(e) => setDetails({ ...details, cases: e.target.value })}
+                                />
+                              </div>
+                            </>
+                          )}
+
+                          {(user?.department?.name === "Public Works Department" || !user?.department?.name) && user?.employee_type !== "public" && (
+                            <>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Asset ID</label>
+                                <input 
+                                  type="text" 
+                                  placeholder="e.g. SL-102" 
+                                  className="w-full bg-white dark:bg-zinc-900 rounded-xl border-2 border-transparent focus:border-blue-500 p-3 text-sm"
+                                  onChange={(e) => setDetails({ ...details, asset_id: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <label className="text-[10px] font-bold uppercase text-slate-500 ml-1">Materials Used</label>
+                                <input 
+                                  type="text" 
+                                  placeholder="e.g. Tar, Cement" 
+                                  className="w-full bg-white dark:bg-zinc-900 rounded-xl border-2 border-transparent focus:border-blue-500 p-3 text-sm"
+                                  onChange={(e) => setDetails({ ...details, materials: e.target.value })}
+                                />
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                    <div className="grid grid-cols-2 gap-6">
                      <PreviewCard src={beforeImg} label="Initial State" type="before" />
@@ -328,6 +435,3 @@ function TipItem({ num, text }: any) {
     </div>
   );
 }
-
-
-import { ArrowRight } from "lucide-react";
