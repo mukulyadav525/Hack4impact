@@ -7,7 +7,8 @@ import {
   Settings, 
   LogOut,
   BarChart2,
-  Award
+  Award,
+  ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
@@ -31,9 +32,12 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex h-screen w-64 flex-col bg-white border-r border-gray-100 dark:bg-black dark:border-zinc-900">
-      <div className="flex h-20 items-center px-8">
-        <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+    <div className="flex h-screen w-64 flex-col bg-[#0A1628]/95 border-r border-white/5 backdrop-blur-md text-slate-300">
+      <div className="flex h-20 items-center px-6 gap-3">
+        <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+           <ShieldCheck size={20} className="text-white" />
+        </div>
+        <div className="text-xl font-bold tracking-tight text-white">
           GovTrack AI
         </div>
       </div>
@@ -48,8 +52,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
                 isActive 
-                  ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400" 
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
+                  ? "bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-[0_0_15px_rgba(37,99,235,0.15)]" 
+                  : "text-slate-400 hover:text-white hover:bg-white/5"
               )}
             >
               <item.icon size={20} />
@@ -59,10 +63,10 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-gray-100 dark:border-zinc-900">
+      <div className="p-4 border-t border-white/5">
         <button 
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 transition-all dark:hover:bg-red-900/10"
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-red-400/10 transition-all"
         >
           <LogOut size={20} />
           Sign Out

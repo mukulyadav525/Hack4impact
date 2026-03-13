@@ -10,9 +10,11 @@ class AttendanceBase(BaseModel):
 class AttendanceCreate(AttendanceBase):
     pass
 
+from uuid import UUID
+
 class Attendance(AttendanceBase):
-    id: str
-    employee_id: str
+    id: UUID
+    employee_id: UUID
     date: datetime
     
     class Config:

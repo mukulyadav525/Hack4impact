@@ -12,9 +12,11 @@ class WorkSubmissionBase(BaseModel):
 class WorkSubmissionCreate(WorkSubmissionBase):
     pass
 
+from uuid import UUID
+
 class WorkSubmission(WorkSubmissionBase):
-    id: str
-    employee_id: str
+    id: UUID
+    employee_id: UUID
     submitted_at: datetime
     status: str
     

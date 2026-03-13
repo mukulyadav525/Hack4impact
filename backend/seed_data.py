@@ -55,6 +55,18 @@ def seed():
         )
         db.add(supervisor)
 
+        admin = Employee(
+            govt_id="ADMIN-001",
+            name="Central Admin",
+            dept_id=pwd.id,
+            zone_id=gurugram.id,
+            employee_type="admin",
+            job_role="System Administrator",
+            pin_hash=get_password_hash("1234"),
+            is_active=True
+        )
+        db.add(admin)
+
         db.commit()
         print("Demo data seeded successfully!")
     except Exception as e:

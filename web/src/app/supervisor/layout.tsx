@@ -8,9 +8,9 @@ export default function SupervisorLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen bg-white dark:bg-black overflow-hidden font-sans">
+    <div className="flex h-screen bg-[#0A1628] text-white selection:bg-blue-500/30 overflow-hidden font-sans">
       <SupervisorSidebar />
-      <main className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-zinc-950 p-10">
+      <main className="flex-1 overflow-y-auto p-10 bg-[#0A1628]">
         <div className="max-w-7xl mx-auto">
           {children}
         </div>

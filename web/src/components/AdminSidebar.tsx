@@ -6,9 +6,8 @@ import {
   Building2, 
   BarChart4, 
   Key, 
-  Settings, 
   LogOut,
-  Bell
+  ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
@@ -32,20 +31,20 @@ export function AdminSidebar() {
   };
 
   return (
-    <div className="flex h-screen w-72 flex-col bg-slate-950 text-slate-300 border-r border-slate-800 shadow-2xl">
-      <div className="flex h-24 items-center px-10">
+    <div className="flex h-screen w-72 flex-col bg-[#0A1628]/95 border-r border-white/5 backdrop-blur-md text-slate-300 shadow-2xl">
+      <div className="flex h-24 items-center px-8">
         <div className="flex items-center gap-3">
-           <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white ring-4 ring-indigo-500/20 shadow-lg shadow-indigo-500/20">
-              <Shield size={22} />
+           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+              <ShieldCheck size={22} />
            </div>
            <div>
-              <div className="text-xl font-black tracking-tight text-white leading-none">GOVTRACK</div>
-              <div className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em] mt-1">Super Admin</div>
+              <div className="text-xl font-bold tracking-tight text-white leading-none">GovTrack AI</div>
+              <div className="text-[10px] font-bold text-blue-400 uppercase tracking-[0.2em] mt-1">Super Admin</div>
            </div>
         </div>
       </div>
       
-      <nav className="flex-1 space-y-1.5 px-6 py-8">
+      <nav className="flex-1 space-y-1.5 px-6 py-4">
         {menuItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -55,21 +54,21 @@ export function AdminSidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-bold transition-all group",
                 isActive 
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" 
-                  : "hover:bg-slate-900 hover:text-white"
+                  ? "bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-[0_0_15px_rgba(37,99,235,0.15)]" 
+                  : "text-slate-400 hover:text-white hover:bg-white/5"
               )}
             >
-              <item.icon size={18} className={cn(isActive ? "text-white" : "text-slate-500 group-hover:text-indigo-400")} />
+              <item.icon size={18} className={cn(isActive ? "text-blue-400" : "text-slate-500 group-hover:text-blue-400")} />
               {item.label}
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-8 border-t border-slate-900">
+      <div className="p-6 border-t border-white/5">
         <button 
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-slate-400 hover:text-red-400 hover:bg-red-400/5 transition-all"
+          className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-bold text-slate-400 hover:text-red-400 hover:bg-red-400/10 transition-all"
         >
           <LogOut size={18} />
           Sign Out

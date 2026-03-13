@@ -20,7 +20,7 @@ class BiometricLogin(BaseModel):
     longitude: float
 
 class Employee(BaseModel):
-    id: str
+    id: UUID
     govt_id: str
     name: str
     employee_type: str
