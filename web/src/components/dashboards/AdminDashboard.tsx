@@ -416,7 +416,7 @@ export default function AdminDashboard({ user }: { user: any }) {
       {/* Departments Tab */}
       {tab === "departments" && (
         <InfoCard title="Department Overview">
-          {(!stats || !stats.department_performance || stats.department_performance.length === 0) ? (
+          {!stats || !stats.department_performance || !Array.isArray(stats.department_performance) || stats.department_performance.length === 0 ? (
             <p className="text-slate-400 text-center py-8 text-sm">No department data available yet.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -501,6 +501,8 @@ export default function AdminDashboard({ user }: { user: any }) {
           <div className="space-y-4">
             {loadingRules ? (
               <div className="flex justify-center py-10"><div className="w-6 h-6 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" /></div>
+            ) : !scoringRules || !Array.isArray(scoringRules) || scoringRules.length === 0 ? (
+              <p className="text-slate-400 text-center py-8 text-sm">No scoring rules configured yet.</p>
             ) : (
               <div className="grid grid-cols-1 gap-4">
                 {scoringRules.map((rule) => (
