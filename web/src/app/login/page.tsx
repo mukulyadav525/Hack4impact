@@ -4,16 +4,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, ArrowRight, Zap } from "lucide-react";
+import { ShieldCheck, ArrowRight } from "lucide-react";
 
-const DEMO_ROLES = [
-  { label: "Teacher",     govtId: "EDU-2024-0001",   icon: "🎓", color: "from-blue-600 to-indigo-700" },
-  { label: "Doctor",      govtId: "HFW-2024-0001",   icon: "🏥", color: "from-emerald-600 to-teal-700" },
-  { label: "Police",      govtId: "POL-2024-0001",   icon: "🛡️", color: "from-violet-600 to-purple-700" },
-  { label: "Supervisor",  govtId: "EDU-2024-0004",   icon: "👔", color: "from-amber-600 to-orange-700" },
-  { label: "Admin",       govtId: "ADMIN-2024-0004", icon: "⚙️", color: "from-red-600 to-rose-700" },
-  { label: "Citizen",     govtId: "PUBLIC-2024-0001",icon: "🏠", color: "from-slate-600 to-slate-700" },
-];
 
 export default function LoginPage() {
   const [govtId, setGovtId] = useState("");
@@ -53,11 +45,6 @@ export default function LoginPage() {
     }
   };
 
-  const fillDemo = (role: typeof DEMO_ROLES[0]) => {
-    setGovtId(role.govtId);
-    setPin("1234");
-    setError("");
-  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#0A1628] px-4 py-12 sm:px-6 lg:px-8 relative font-sans text-white overflow-hidden">
@@ -136,30 +123,6 @@ export default function LoginPage() {
             </div>
           </form>
         </div>
-
-        {/* Demo Quick Login */}
-        <div className="rounded-3xl bg-[#1E3A5F]/30 border border-white/5 backdrop-blur-xl p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Zap size={14} className="text-yellow-400" />
-            <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">Demo Quick Login — PIN: 1234</p>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {DEMO_ROLES.map((role) => (
-              <button
-                key={role.govtId}
-                onClick={() => fillDemo(role)}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/15 transition-all group"
-              >
-                <span className="text-2xl">{role.icon}</span>
-                <span className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">{role.label}</span>
-              </button>
-            ))}
-          </div>
-          <p className="text-[10px] text-slate-500 mt-3 text-center">
-            Click a role above to auto-fill credentials, then press Sign In
-          </p>
-        </div>
-
       </div>
     </div>
   );
