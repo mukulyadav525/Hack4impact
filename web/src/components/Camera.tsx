@@ -7,9 +7,10 @@ import { cn } from '@/lib/utils';
 interface CameraProps {
   onCapture: (base64: string) => void;
   className?: string;
+  showOverlay?: boolean;
 }
 
-export function Camera({ onCapture, className }: CameraProps) {
+export function Camera({ onCapture, className, showOverlay = true }: CameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isActive, setIsActive] = useState(false);
@@ -92,9 +93,11 @@ export function Camera({ onCapture, className }: CameraProps) {
             muted 
             className="w-full h-auto aspect-[4/3] object-cover"
           />
-          <div className="absolute inset-0 border-[30px] border-black/40 pointer-events-none">
-            <div className="w-full h-full border-2 border-blue-500/50 rounded-full box-content -m-0.5" />
-          </div>
+          {showOverlay && (
+            <div className="absolute inset-0 border-[30px] border-black/40 pointer-events-none">
+              <div className="w-full h-full border-2 border-blue-500/50 rounded-full box-content -m-0.5" />
+            </div>
+          )}
           <button 
             onClick={capture}
             className="absolute bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-white border-4 border-zinc-300 flex items-center justify-center shadow-lg active:scale-95 transition-all"
@@ -106,21 +109,30 @@ export function Camera({ onCapture, className }: CameraProps) {
 
       {isCaptured && (
         <div className="relative">
-          <canvas ref={canvasRef} className="w-full h-auto aspect-[4/3] object-cover" />
-          <div className="absolute inset-0 bg-green-500/10 flex items-center justify-center">
+          <div className="absolute inset-0 bg-green-500/10 flex items-center justify-center pointer-events-none">
             <div className="bg-white rounded-full p-4 shadow-xl">
               <CheckCircle2 size={48} className="text-green-500" />
             </div>
           </div>
           <button 
             onClick={reset}
-            className="absolute bottom-6 right-6 flex items-center gap-2 bg-white/90 backdrop-blur px-4 py-2 rounded-lg text-zinc-900 font-medium shadow-lg hover:bg-white transition-all"
+            className="absolute bottom-6 right-6 flex items-center gap-2 bg-white/90 backdrop-blur px-4 py-2 rounded-lg text-zinc-900 font-medium shadow-lg hover:bg-white transition-all z-10"
           >
             <RefreshCw size={16} />
             Retake
           </button>
         </div>
       )}
+
+      {/* Hidden canvas for capturing */}
+      <canvas 
+        ref={canvasRef} 
+        className={cn(
+          "w-full h-auto aspect-[4/3] object-cover",
+          !isCaptured && "hidden"
+        )} 
+      />
     </div>
   );
 }
+

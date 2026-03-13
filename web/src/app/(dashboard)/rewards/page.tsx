@@ -6,11 +6,45 @@ import {
   Trophy, 
   Gift,
   CheckCircle2,
-  Lock
+  Lock,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
 
 export default function RewardsPage() {
+  const [stats, setStats] = useState<any>(null);
+  /* Rewards Stats */
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:8000/api/v1/stats/me", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-[60vh]">
+      <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+    </div>
+  );
+
+  if (!stats) return null;
+
   return (
     <div className="space-y-8">
       <div className="max-w-2xl">
@@ -24,7 +58,7 @@ export default function RewardsPage() {
            <div className="flex justify-between items-start mb-12">
              <div>
                <p className="text-indigo-100 text-sm font-medium uppercase tracking-wider">Current Status</p>
-               <h2 className="text-4xl font-bold mt-1">Gold Tier</h2>
+               <h2 className="text-4xl font-bold mt-1">{stats.current_tier} Tier</h2>
              </div>
              <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center border border-white/20">
                <Trophy size={32} />
@@ -33,13 +67,17 @@ export default function RewardsPage() {
 
            <div className="space-y-6">
              <div className="flex justify-between text-sm">
-               <span>Progress to Platinum</span>
-               <span>820 / 1000 pts</span>
+               <span>Progress to {stats.next_tier}</span>
+               <span>{stats.total_points} / {stats.total_points + stats.points_to_next} pts</span>
              </div>
              <div className="h-3 w-full bg-white/20 rounded-full overflow-hidden">
-               <div className="h-full bg-white rounded-full w-[82%]" />
+               <div className="h-full bg-white rounded-full transition-all duration-1000" style={{ width: `${stats.progress_percent}%` }} />
              </div>
-             <p className="text-indigo-100 text-sm">You need 180 more points to reach Platinum status and unlock full health benefits.</p>
+             <p className="text-indigo-100 text-sm">
+                {stats.points_to_next > 0 
+                  ? `You need ${stats.points_to_next} more points to reach ${stats.next_tier} status.`
+                  : `Congratulations! You've reached the highest tier.`}
+             </p>
            </div>
         </div>
 
@@ -51,7 +89,7 @@ export default function RewardsPage() {
                </div>
                <div>
                  <p className="text-xs text-gray-500 uppercase font-bold">Total Points</p>
-                 <p className="text-2xl font-bold">4,250</p>
+                 <p className="text-2xl font-bold text-black dark:text-white">{stats.total_points.toLocaleString()}</p>
                </div>
             </div>
             <div className="flex items-center gap-4">
@@ -59,8 +97,8 @@ export default function RewardsPage() {
                  <Award size={24} />
                </div>
                <div>
-                 <p className="text-xs text-gray-500 uppercase font-bold">Rewards Claimed</p>
-                 <p className="text-2xl font-bold">12</p>
+                 <p className="text-xs text-gray-500 uppercase font-bold">Top Performance Days</p>
+                 <p className="text-2xl font-bold text-black dark:text-white">{stats.rewards_claimed}</p>
                </div>
             </div>
         </div>
@@ -70,26 +108,22 @@ export default function RewardsPage() {
       <div className="space-y-6">
         <h2 className="text-2xl font-bold">Eligible Rewards</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {stats.eligible_rewards.map((reward: any, idx: number) => (
+            <RewardCard 
+              key={idx}
+              title={reward.title}
+              desc={reward.desc}
+              points={reward.trigger}
+              icon={reward.unlocked ? ShieldCheck : Lock}
+              unlocked={reward.unlocked}
+            />
+          ))}
           <RewardCard 
             title="Health Insurance Subsidy" 
             desc="50% off monthly premiums for Haryana Govt Health Scheme."
             points="Gold Status"
             icon={ShieldCheck}
-            unlocked={true}
-          />
-          <RewardCard 
-            title="Performance Bonus" 
-            desc="One-time cash incentive of ₹2,500 based on monthly score."
-            points="Score > 900"
-            icon={Gift}
-            unlocked={false}
-          />
-          <RewardCard 
-            title="Priority Leave Approval" 
-            desc="Instant approval for CASUAL leave requests during lean season."
-            points="Silver Status"
-            icon={CheckCircle2}
-            unlocked={true}
+            unlocked={stats.current_tier === "Gold" || stats.current_tier === "Platinum"}
           />
         </div>
       </div>

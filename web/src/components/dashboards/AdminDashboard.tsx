@@ -17,11 +17,18 @@ function authHeaders() {
 }
 
 export default function AdminDashboard({ user }: { user: any }) {
-  const [tab, setTab] = useState<"overview" | "users" | "departments">("overview");
+  const [tab, setTab] = useState<"overview" | "users" | "departments" | "zones" | "submissions">("overview");
   const [employees, setEmployees] = useState<any[]>([]);
+  const [zones, setZones] = useState<any[]>([]);
+  const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [editUser, setEditUser] = useState<any>(null);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [stats, setStats] = useState<any>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [newUser, setNewUser] = useState({
+    govt_id: "", name: "", pin: "", employee_type: "field_worker", job_role: "", dept_id: 1, zone_id: 1
+  });
 
   const fetchEmployees = async () => {
     setLoadingUsers(true);
@@ -32,10 +39,33 @@ export default function AdminDashboard({ user }: { user: any }) {
     setLoadingUsers(false);
   };
 
+  const fetchZones = async () => {
+    try {
+      const res = await fetch(`${API}/zones`, { headers: authHeaders() });
+      if (res.ok) setZones(await res.json());
+    } catch {}
+  };
+
+  const fetchAllSubmissions = async () => {
+    try {
+      const res = await fetch(`${API}/submissions`, { headers: authHeaders() });
+      if (res.ok) setAllSubmissions(await res.json());
+    } catch {}
+  };
+
+  const fetchStats = async () => {
+    try {
+      const res = await fetch(`${API}/stats/admin`, { headers: authHeaders() });
+      if (res.ok) setStats(await res.json());
+    } catch {}
+  };
+
   useEffect(() => {
-    // eslint-disable-next-line
-    if (tab === "users") fetchEmployees();
-  }, [tab]);
+    fetchEmployees();
+    fetchZones();
+    fetchAllSubmissions();
+    fetchStats();
+  }, []);
 
 
   const handleSaveUser = async () => {
@@ -47,6 +77,28 @@ export default function AdminDashboard({ user }: { user: any }) {
         body: JSON.stringify({ name: editUser.name, job_role: editUser.job_role, is_active: editUser.is_active }),
       });
       setEditUser(null);
+      fetchEmployees();
+    } catch {}
+  };
+
+  const handleAddUser = async () => {
+    try {
+      await fetch(`${API}/employees`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          govt_id: newUser.govt_id,
+          name: newUser.name,
+          pin: newUser.pin,
+          employee_type: newUser.employee_type,
+          job_role: newUser.job_role || undefined,
+          dept_id: Number(newUser.dept_id) || undefined,
+          zone_id: Number(newUser.zone_id) || undefined
+        }),
+      });
+      setIsAdding(false);
+      setNewUser({ govt_id: "", name: "", pin: "", employee_type: "field_worker", job_role: "", dept_id: 1, zone_id: 1 });
+      setTab("users");
       fetchEmployees();
     } catch {}
   };
@@ -68,18 +120,18 @@ export default function AdminDashboard({ user }: { user: any }) {
           <h1 className="text-3xl font-extrabold tracking-tight text-white">Admin Control Panel</h1>
           <p className="text-slate-400 font-medium mt-1">Welcome, {user?.name || "Administrator"}</p>
         </div>
-        <Link href="/submissions" className="flex items-center gap-2 px-6 py-3 bg-red-600/80 hover:bg-red-600 text-white rounded-xl font-bold transition-all text-sm border border-red-500/30">
+        <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 px-6 py-3 bg-red-600/80 hover:bg-red-600 text-white rounded-xl font-bold transition-all text-sm border border-red-500/30">
           <Plus size={16} /> Add New Employee
-        </Link>
+        </button>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 p-1 bg-black/20 rounded-2xl border border-white/5 w-fit">
-        {(["overview", "users", "departments"] as const).map((t) => (
+      <div className="flex gap-2 p-1 bg-black/20 rounded-2xl border border-white/5 w-fit overflow-x-auto max-w-full">
+        {(["overview", "users", "departments", "zones", "submissions"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-5 py-2 rounded-xl text-sm font-bold capitalize transition-all ${tab === t ? "bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)]" : "text-slate-400 hover:text-white"}`}
+            className={`px-5 py-2 rounded-xl text-sm font-bold capitalize transition-all whitespace-nowrap ${tab === t ? "bg-blue-600 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)]" : "text-slate-400 hover:text-white"}`}
           >
             {t}
           </button>
@@ -90,20 +142,20 @@ export default function AdminDashboard({ user }: { user: any }) {
       {tab === "overview" && (
         <div className="space-y-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <StatCard title="Total Employees" value="248" unit="active" change="+12 this month" icon={Users} color="blue" />
-            <StatCard title="Departments" value="5" unit="active" change="All operational" icon={Building2} color="indigo" />
-            <StatCard title="Zones" value="12" unit="mapped" change="Coverage 94%" icon={MapPin} color="green" />
-            <StatCard title="Submissions Today" value="34" unit="reports" change="8 pending review" icon={BarChart2} color="orange" />
+            <StatCard onClick={() => setTab("users")} title="Total Employees" value={stats?.overview.total_employees.toString() || employees.length.toString() || "..."} unit="users" change="View All" icon={Users} color="blue" />
+            <StatCard onClick={() => setTab("departments")} title="Departments" value={stats?.overview.departments.toString() || "..."} unit="operational" change="View Details" icon={Building2} color="indigo" />
+            <StatCard onClick={() => setTab("zones")} title="Zones" value={stats?.overview.zones.toString() || zones.length.toString() || "..."} unit="mapped" change="Active Regions" icon={MapPin} color="green" />
+            <StatCard onClick={() => setTab("submissions")} title="Submissions Today" value={stats?.overview.submissions_today.toString() || "0"} unit="reports" change={`${stats?.overview.pending_review || 0} pending`} icon={BarChart2} color="orange" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <InfoCard title="System Activity">
               <div className="space-y-3">
                 {[
-                  { label: "New citizen reports submitted", count: "12", color: "orange" },
-                  { label: "AI Verified work submissions", count: "28", color: "green" },
-                  { label: "Flagged for manual review", count: "4", color: "yellow" },
-                  { label: "Accounts locked (security)", count: "1", color: "red" },
+                  { label: "New citizen reports submitted", count: stats?.system_activity.new_citizen_reports || 0, color: "orange" },
+                  { label: "AI Verified work submissions", count: stats?.system_activity.ai_verified || 0, color: "green" },
+                  { label: "Flagged for manual review", count: stats?.system_activity.flagged_for_review || 0, color: "yellow" },
+                  { label: "Accounts locked (security)", count: stats?.system_activity.locked_accounts || 0, color: "red" },
                 ].map((item) => (
                   <div key={item.label} className="flex items-center justify-between p-4 rounded-2xl bg-black/20 border border-white/5">
                     <span className="text-sm text-slate-300">{item.label}</span>
@@ -115,22 +167,16 @@ export default function AdminDashboard({ user }: { user: any }) {
 
             <InfoCard title="Department Performance">
               <div className="space-y-4">
-                {[
-                  { name: "Haryana Police", score: 87, color: "blue" },
-                  { name: "Health & Family Welfare", score: 93, color: "emerald" },
-                  { name: "Higher Education", score: 88, color: "violet" },
-                  { name: "Public Works Dept", score: 79, color: "orange" },
-                  { name: "Public Participation", score: 72, color: "amber" },
-                ].map((dept) => (
-                  <div key={dept.name}>
+                {(stats?.department_performance || []).map((dept: any) => (
+                  <div key={dept.name} className="cursor-pointer group" onClick={() => { setTab("users"); setSearch(dept.name); }}>
                     <div className="flex justify-between mb-1">
-                      <span className="text-sm font-medium text-slate-300">{dept.name}</span>
+                      <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">{dept.name}</span>
                       <span className="text-sm font-bold text-white">{dept.score}%</span>
                     </div>
                     <div className="h-2 bg-black/30 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full bg-gradient-to-r from-${dept.color}-600 to-${dept.color}-400`}
-                        style={{ width: `${dept.score}%` }}
+                        className={`h-full rounded-full bg-gradient-to-r from-${dept.color}-600 to-${dept.color}-400 transition-all duration-1000`}
+                        style={{ width: `${Math.min(dept.score, 100)}%` }}
                       />
                     </div>
                   </div>
@@ -223,6 +269,86 @@ export default function AdminDashboard({ user }: { user: any }) {
               </div>
             </div>
           )}
+          
+          {/* Add Modal */}
+          {isAdding && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-[#0F2240] border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl">
+                <h3 className="text-xl font-bold text-white mb-6">Add New Employee</h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">Govt ID</label>
+                      <input
+                        value={newUser.govt_id}
+                        onChange={(e) => setNewUser({ ...newUser, govt_id: e.target.value })}
+                        className="mt-1 w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 text-white text-sm focus:border-blue-500/50 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">PIN (Login)</label>
+                      <input
+                        type="password"
+                        value={newUser.pin}
+                        onChange={(e) => setNewUser({ ...newUser, pin: e.target.value })}
+                        className="mt-1 w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 text-white text-sm focus:border-blue-500/50 outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">Full Name</label>
+                    <input
+                      value={newUser.name}
+                      onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                      className="mt-1 w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 text-white text-sm focus:border-blue-500/50 outline-none"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">Role Type</label>
+                      <select
+                        value={newUser.employee_type}
+                        onChange={(e) => setNewUser({ ...newUser, employee_type: e.target.value })}
+                        className="mt-1 w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 text-white text-sm focus:border-blue-500/50 outline-none appearance-none"
+                      >
+                        <option value="field_worker">Field Worker</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="admin">Admin</option>
+                        <option value="public">Public</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">Job Title</label>
+                      <input
+                        value={newUser.job_role}
+                        onChange={(e) => setNewUser({ ...newUser, job_role: e.target.value })}
+                        placeholder="e.g. Constable"
+                        className="mt-1 w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 text-white text-sm focus:border-blue-500/50 outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">Department</label>
+                    <select
+                      value={newUser.dept_id}
+                      onChange={(e) => setNewUser({ ...newUser, dept_id: parseInt(e.target.value) })}
+                      className="mt-1 w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 text-white text-sm focus:border-blue-500/50 outline-none appearance-none"
+                    >
+                      <option value={1}>Public Works Department</option>
+                      <option value={2}>Health & Family Welfare</option>
+                      <option value={3}>Haryana Police</option>
+                      <option value={4}>Higher Education</option>
+                      <option value={5}>Public Participation</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex gap-3 mt-6">
+                  <button onClick={() => setIsAdding(false)} className="flex-1 py-3 rounded-xl border border-white/10 text-slate-300 hover:text-white font-bold text-sm transition-colors">Cancel</button>
+                  <button onClick={handleAddUser} className="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition-colors">Create User</button>
+                </div>
+              </div>
+            </div>
+          )}
         </InfoCard>
       )}
 
@@ -230,14 +356,8 @@ export default function AdminDashboard({ user }: { user: any }) {
       {tab === "departments" && (
         <InfoCard title="Department Overview">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              { name: "Haryana Police", code: "POL-HR", color: "blue", employees: 68, zone: "Police Station East" },
-              { name: "Health & Family Welfare", code: "HFW-HR", color: "emerald", employees: 92, zone: "Civil Hospital" },
-              { name: "Higher Education", code: "EDU-HR", color: "violet", employees: 54, zone: "Govt. Sr. Sec. School" },
-              { name: "Public Works Dept", code: "PWD-HR", color: "orange", employees: 31, zone: "Gurugram North-II" },
-              { name: "Public Participation", code: "PUBLIC", color: "amber", employees: 3, zone: "Gurugram General" },
-            ].map((dept) => (
-              <div key={dept.code} className={`p-6 rounded-2xl bg-${dept.color}-500/5 border border-${dept.color}-500/20 space-y-3`}>
+            {(stats?.department_performance || []).map((dept: any) => (
+              <div key={dept.code} className={`p-6 rounded-2xl bg-${dept.color}-500/5 border border-${dept.color}-500/20 space-y-3 cursor-pointer hover:bg-${dept.color}-500/10 transition-colors`} onClick={() => { setTab("users"); setSearch(dept.name); }}>
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="font-bold text-white">{dept.name}</p>
@@ -248,6 +368,62 @@ export default function AdminDashboard({ user }: { user: any }) {
                   </span>
                 </div>
                 <p className="text-xs text-slate-400">Zone: {dept.zone}</p>
+              </div>
+            ))}
+          </div>
+        </InfoCard>
+      )}
+
+      {/* Zones Tab */}
+      {tab === "zones" && (
+        <InfoCard title="Regional Zones">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {zones.map((z: any) => (
+              <div key={z.id} className="p-5 rounded-2xl bg-black/20 border border-white/5 space-y-2">
+                <div className="flex justify-between items-start">
+                  <p className="font-bold text-white">{z.name}</p>
+                  <MapPin size={14} className="text-blue-400" />
+                </div>
+                <p className="text-xs text-slate-400">{z.city}, {z.district}</p>
+                <div className="pt-2 border-t border-white/5 flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                  <span className="text-slate-500">ID: {z.id}</span>
+                  <span className="text-emerald-400">Active</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </InfoCard>
+      )}
+
+      {/* Submissions Tab */}
+      {tab === "submissions" && (
+        <InfoCard title="Global Submission Feed">
+          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+            {allSubmissions.map((s: any) => (
+              <div key={s.id} className="flex items-center gap-4 p-4 rounded-2xl bg-black/20 border border-white/5">
+                <div className="w-12 h-12 rounded-xl overflow-hidden bg-black/40 flex-shrink-0">
+                  {s.after_image_url ? (
+                    <img src={s.after_image_url} alt="Work" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-600"><BarChart2 size={16} /></div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-white">{s.task_type}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {new Date(s.submitted_at).toLocaleString()} · Lat: {s.latitude.toFixed(4)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded-full border uppercase tracking-wider ${
+                    s.status === 'approved' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                    s.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
+                    'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                  }`}>
+                    {s.status}
+                  </span>
+                  <p className="text-[10px] text-slate-500 font-bold mt-1">AI: {Math.round(s.ai_confidence * 100)}%</p>
+                </div>
               </div>
             ))}
           </div>

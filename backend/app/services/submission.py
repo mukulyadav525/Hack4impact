@@ -44,7 +44,16 @@ class SubmissionService:
         db.refresh(submission)
         
         # 3. Enqueue AI verification and Fraud checks
-        celery_app.send_task("process_submission", args=[str(submission.id)])
+        try:
+            celery_app.send_task("process_submission", args=[str(submission.id)])
+        except Exception as e:
+            # Fallback for demo: if Redis/Celery is down, mark as 'review' directly
+            # so the admin can still approve it in the dashboard.
+            print(f"Celery error: {e}. Defaulting to manual review.")
+            submission.status = "review"
+            db.commit()
+            
+        return submission
         
     @staticmethod
     def review_submission(db: Session, submission_id: str, approved: bool):

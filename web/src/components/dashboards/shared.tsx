@@ -5,7 +5,7 @@
 import { cn } from "@/lib/utils";
 
 // Shared StatCard
-export function StatCard({ title, value, unit, change, icon: Icon, color }: any) {
+export function StatCard({ title, value, unit, change, icon: Icon, color, onClick }: any) {
   const colors: any = {
     blue: "text-blue-400 bg-blue-500/10 border-blue-500/20",
     indigo: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
@@ -14,7 +14,13 @@ export function StatCard({ title, value, unit, change, icon: Icon, color }: any)
     violet: "text-violet-400 bg-violet-500/10 border-violet-500/20",
   };
   return (
-    <div className="bg-[#1E3A5F]/40 backdrop-blur-xl p-6 rounded-3xl border border-white/5 shadow-xl flex flex-col gap-4 hover:bg-[#1E3A5F]/60 transition-colors">
+    <div 
+      onClick={onClick}
+      className={cn(
+        "bg-[#1E3A5F]/40 backdrop-blur-xl p-6 rounded-3xl border border-white/5 shadow-xl flex flex-col gap-4 hover:bg-[#1E3A5F]/60 transition-colors",
+        onClick && "cursor-pointer active:scale-[0.98]"
+      )}
+    >
       <div className="flex justify-between items-start">
         <div className={cn("p-3 rounded-2xl border", colors[color])}>
           <Icon size={22} />
