@@ -51,14 +51,13 @@ export default function SubmissionsPage() {
       const token = localStorage.getItem("token");
       const govtId = localStorage.getItem("govtId") || "MOCK-123";
 
-      const response = await fetch("http://127.0.0.1:8000/api/v1/submissions/submit", {
+      const response = await fetch("http://localhost:8000/api/v1/submissions/submit", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ 
-          govt_id: govtId,
           task_type: taskType,
           before_image_base64: beforeImg.split(',')[1],
           after_image_base64: afterImg.split(',')[1],
