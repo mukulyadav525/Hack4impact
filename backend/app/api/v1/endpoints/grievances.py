@@ -8,7 +8,7 @@ from uuid import UUID
 
 router = APIRouter()
 
-@router.get("/", response_model=List[schemas.Grievance])
+@router.get("", response_model=List[schemas.Grievance])
 def read_grievances(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -18,8 +18,7 @@ def read_grievances(
     if current_user.employee_type == "admin":
         return db.query(models.Grievance).offset(skip).limit(limit).all()
     return db.query(models.Grievance).filter(models.Grievance.employee_id == current_user.id).offset(skip).limit(limit).all()
-
-@router.post("/", response_model=schemas.Grievance)
+@router.post("", response_model=schemas.Grievance)
 def create_grievance(
     *,
     db: Session = Depends(deps.get_db),

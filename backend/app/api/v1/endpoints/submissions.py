@@ -63,7 +63,7 @@ def review_submission(
     """
     return SubmissionService.review_submission(db, submission_id, approved)
 
-@router.get("/list/", response_model=List[schemas.submission.WorkSubmission])
+@router.get("/list", response_model=List[schemas.submission.WorkSubmission])
 def read_all_submissions(
     db: Session = Depends(get_db),
     admin: models.core.Employee = Depends(deps.check_admin)

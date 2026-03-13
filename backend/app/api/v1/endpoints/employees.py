@@ -7,7 +7,7 @@ from app.api import deps
 
 router = APIRouter()
 
-@router.get("/", response_model=List[schemas.auth.Employee])
+@router.get("", response_model=List[schemas.auth.Employee])
 def read_employees(
     db: Session = Depends(get_db),
     skip: int = 0,
@@ -19,8 +19,7 @@ def read_employees(
     """
     employees = db.query(models.core.Employee).offset(skip).limit(limit).all()
     return employees
-
-@router.post("/", response_model=schemas.auth.Employee, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=schemas.auth.Employee, status_code=status.HTTP_201_CREATED)
 def create_employee(
     *,
     db: Session = Depends(get_db),

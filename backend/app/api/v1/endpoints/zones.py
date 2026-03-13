@@ -7,7 +7,7 @@ from app.core.database import get_db
 
 router = APIRouter()
 
-@router.get("/", response_model=List[schemas.zone.Zone])
+@router.get("", response_model=List[schemas.zone.Zone])
 def read_zones(
     db: Session = Depends(get_db),
     current_user: models.core.Employee = Depends(deps.get_current_user)
@@ -16,8 +16,7 @@ def read_zones(
     Retrieve all zones.
     """
     return db.query(models.core.Zone).all()
-
-@router.post("/", response_model=schemas.zone.Zone)
+@router.post("", response_model=schemas.zone.Zone)
 def create_zone(
     *,
     db: Session = Depends(get_db),
