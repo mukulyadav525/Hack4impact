@@ -51,6 +51,11 @@ class AttendanceService:
         db.add(attendance)
         db.commit()
         db.refresh(attendance)
+
+        # Trigger score re-calculation for the day
+        from app.services.scoring import ScoringService
+        ScoringService.calculate_daily_score(db, employee_id, datetime.now().date())
+
         return attendance
 
     @staticmethod
