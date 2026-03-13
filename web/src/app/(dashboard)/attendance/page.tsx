@@ -11,6 +11,7 @@ import {
   ArrowRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { API_V1 } from "@/lib/api_config";
 
 export default function AttendancePage() {
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
@@ -36,7 +37,7 @@ export default function AttendancePage() {
       const token = localStorage.getItem("token");
       const govtId = localStorage.getItem("govtId") || "MOCK-123";
 
-      const response = await fetch("http://127.0.0.1:8000/api/v1/auth/biometric-checkin", {
+      const response = await fetch(`${API_V1}/auth/biometric-checkin`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
