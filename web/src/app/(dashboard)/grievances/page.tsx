@@ -157,13 +157,14 @@ export default function GrievancesPage() {
       {/* File Grievance Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0F2240] border border-white/10 rounded-3xl p-8 w-full max-w-lg shadow-2xl">
+          <div className="bg-[#0F2240] border border-white/10 rounded-3xl p-8 w-full max-w-lg shadow-2xl relative">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-white">File a Grievance</h3>
               <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-white transition-colors">
                 <X size={20} />
               </button>
             </div>
+            
             <div className="space-y-5">
               <div>
                 <label className="text-xs text-slate-400 font-bold uppercase tracking-wider">Category</label>
@@ -188,15 +189,22 @@ export default function GrievancesPage() {
               </div>
               <div className="flex gap-3 pt-2">
                 <button
+                  type="button"
                   onClick={() => setShowForm(false)}
-                  className="flex-1 py-3 rounded-xl border border-white/10 text-slate-300 hover:text-white font-bold text-sm transition-colors"
+                  className="flex-1 py-3 rounded-xl border border-white/10 text-slate-300 hover:text-white font-bold text-sm transition-colors cursor-pointer relative z-10"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={handleSubmit}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (form.description.length >= 20) {
+                      handleSubmit();
+                    }
+                  }}
                   disabled={submitting || form.description.length < 20}
-                  className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-sm transition-colors disabled:opacity-50"
+                  className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer relative z-10"
                 >
                   {submitting ? "Filing..." : "Submit Grievance"}
                 </button>
