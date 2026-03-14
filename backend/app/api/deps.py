@@ -24,7 +24,7 @@ def get_current_active_employee(
         token_data = TokenPayload(**payload)
     except (JWTError, ValidationError):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
         )
     user = db.query(models.Employee).filter(models.Employee.id == token_data.sub).first()
