@@ -25,17 +25,10 @@ async def log_requests(request: Request, call_next):
     return response
 
 # Configure CORS
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://hack4impact-o1h2.vercel.app",
-    "https://hack4impact.vercel.app",
-    "https://hack4impact-web.vercel.app",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+    allow_origin_regex=r"https://hack4impact-.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

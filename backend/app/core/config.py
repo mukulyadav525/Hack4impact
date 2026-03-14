@@ -10,6 +10,14 @@ class Settings(BaseSettings):
     REDIS_HOST: str = "localhost"
     REDIS_URL: Optional[str] = None
     OPENAI_API_KEY: str = "your_openai_api_key"
+    BACKEND_CORS_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://hack4impact-o1h2.vercel.app",
+        "https://hack4impact.vercel.app",
+        "https://hack4impact-web.vercel.app",
+        "https://hack4impact-m2tn.vercel.app", # New domain reported by user
+    ]
 
     class Config:
         env_file = ".env"
